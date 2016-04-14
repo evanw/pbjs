@@ -1,5 +1,6 @@
 var test = test || exports || {}, exports;
 var ByteBuffer = ByteBuffer || require("bytebuffer");
+test.Long = ByteBuffer.Long;
 
 (function(undefined) {
 
@@ -26,7 +27,7 @@ var ByteBuffer = ByteBuffer || require("bytebuffer");
     return value;
   }
 
-  exports["encodeNested"] = function(message) {
+  test["encodeNested"] = function(message) {
     var buffer = new ByteBuffer(undefined, true);
 
     // optional float x = 1;
@@ -46,7 +47,7 @@ var ByteBuffer = ByteBuffer || require("bytebuffer");
     return buffer.flip().toBuffer();
   };
 
-  exports["decodeNested"] = function(buffer) {
+  test["decodeNested"] = function(buffer) {
     var message = {};
 
     if (!(buffer instanceof ByteBuffer))
@@ -77,7 +78,7 @@ var ByteBuffer = ByteBuffer || require("bytebuffer");
     return message;
   };
 
-  exports["encodeOptional"] = function(message) {
+  test["encodeOptional"] = function(message) {
     var buffer = new ByteBuffer(undefined, true);
 
     // optional int32 field_int32 = 1;
@@ -190,14 +191,14 @@ var ByteBuffer = ByteBuffer || require("bytebuffer");
     var value = message["field_nested"];
     if (value !== undefined) {
       buffer.writeVarint32(130);
-      var nested = exports["encodeNested"](value);
+      var nested = test["encodeNested"](value);
       buffer.writeVarint32(nested.length), buffer.append(nested);
     }
 
     return buffer.flip().toBuffer();
   };
 
-  exports["decodeOptional"] = function(buffer) {
+  test["decodeOptional"] = function(buffer) {
     var message = {};
 
     if (!(buffer instanceof ByteBuffer))
@@ -288,7 +289,7 @@ var ByteBuffer = ByteBuffer || require("bytebuffer");
       // optional Nested field_nested = 16;
       case 16:
         var limit = pushTemporaryLength(buffer);
-        message["field_nested"] = exports["decodeNested"](buffer);
+        message["field_nested"] = test["decodeNested"](buffer);
         buffer.limit = limit;
         break;
 
@@ -300,7 +301,7 @@ var ByteBuffer = ByteBuffer || require("bytebuffer");
     return message;
   };
 
-  exports["encodeRepeatedUnpacked"] = function(message) {
+  test["encodeRepeatedUnpacked"] = function(message) {
     var buffer = new ByteBuffer(undefined, true);
 
     // repeated int32 field_int32 = 1;
@@ -459,7 +460,7 @@ var ByteBuffer = ByteBuffer || require("bytebuffer");
     if (values !== undefined) {
       for (var i = 0; i < values.length; i++) {
         var value = values[i];
-        var nested = exports["encodeNested"](value);
+        var nested = test["encodeNested"](value);
         buffer.writeVarint32(130);
         buffer.writeVarint32(nested.length), buffer.append(nested);
       }
@@ -468,7 +469,7 @@ var ByteBuffer = ByteBuffer || require("bytebuffer");
     return buffer.flip().toBuffer();
   };
 
-  exports["decodeRepeatedUnpacked"] = function(buffer) {
+  test["decodeRepeatedUnpacked"] = function(buffer) {
     var message = {};
 
     if (!(buffer instanceof ByteBuffer))
@@ -679,7 +680,7 @@ var ByteBuffer = ByteBuffer || require("bytebuffer");
       case 16:
         var limit = pushTemporaryLength(buffer);
         var values = message["field_nested"] || (message["field_nested"] = []);
-        values.push(exports["decodeNested"](buffer));
+        values.push(test["decodeNested"](buffer));
         buffer.limit = limit;
         break;
 
@@ -691,7 +692,7 @@ var ByteBuffer = ByteBuffer || require("bytebuffer");
     return message;
   };
 
-  exports["encodeRepeatedPacked"] = function(message) {
+  test["encodeRepeatedPacked"] = function(message) {
     var buffer = new ByteBuffer(undefined, true);
 
     // repeated int32 field_int32 = 1;
@@ -889,7 +890,7 @@ var ByteBuffer = ByteBuffer || require("bytebuffer");
     if (values !== undefined) {
       for (var i = 0; i < values.length; i++) {
         var value = values[i];
-        var nested = exports["encodeNested"](value);
+        var nested = test["encodeNested"](value);
         buffer.writeVarint32(130);
         buffer.writeVarint32(nested.length), buffer.append(nested);
       }
@@ -898,7 +899,7 @@ var ByteBuffer = ByteBuffer || require("bytebuffer");
     return buffer.flip().toBuffer();
   };
 
-  exports["decodeRepeatedPacked"] = function(buffer) {
+  test["decodeRepeatedPacked"] = function(buffer) {
     var message = {};
 
     if (!(buffer instanceof ByteBuffer))
@@ -1109,7 +1110,7 @@ var ByteBuffer = ByteBuffer || require("bytebuffer");
       case 16:
         var limit = pushTemporaryLength(buffer);
         var values = message["field_nested"] || (message["field_nested"] = []);
-        values.push(exports["decodeNested"](buffer));
+        values.push(test["decodeNested"](buffer));
         buffer.limit = limit;
         break;
 

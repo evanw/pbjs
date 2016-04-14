@@ -31,10 +31,12 @@ exports.generate = function(schema) {
   if (package) {
     lines.push('var ' + package + ' = ' + package + ' || exports || {}, exports;');
   } else {
+    package = 'exports';
     lines.push('var exports = exports || {};');
   }
 
   lines.push('var ByteBuffer = ByteBuffer || require("bytebuffer");');
+  lines.push(package + '.Long = ByteBuffer.Long;');
   lines.push('');
   lines.push('(function(undefined) {');
   lines.push('');
@@ -84,10 +86,10 @@ exports.generate = function(schema) {
       decode[value.value] = key;
     });
 
-    lines.push('  exports[' + quote('encode' + def.name) + '] = ' + quote(encode) + ';');
+    lines.push('  ' + package + '[' + quote('encode' + def.name) + '] = ' + quote(encode) + ';');
     lines.push('');
 
-    lines.push('  exports[' + quote('decode' + def.name) + '] = ' + quote(decode) + ';');
+    lines.push('  ' + package + '[' + quote('decode' + def.name) + '] = ' + quote(decode) + ';');
     lines.push('');
 
     enums[def.name] = true;
@@ -108,7 +110,7 @@ exports.generate = function(schema) {
   for (var i = 0; i < schema.messages.length; i++) {
     var def = schema.messages[i];
 
-    lines.push('  exports[' + quote('encode' + def.name) + '] = function(message) {');
+    lines.push('  ' + package + '[' + quote('encode' + def.name) + '] = function(message) {');
     lines.push('    var buffer = new ByteBuffer(undefined, true);');
     lines.push('');
 
@@ -150,10 +152,10 @@ exports.generate = function(schema) {
         default: {
           if (field.type in enums) {
             type = TYPE_VAR_INT;
-            write = buffer + '.writeVarint32(exports[' + quote('encode' + field.type) + '][value])';
+            write = buffer + '.writeVarint32(' + package + '[' + quote('encode' + field.type) + '][value])';
           } else {
             type = TYPE_SIZE_N;
-            before = 'var nested = exports[' + quote('encode' + field.type) + '](value)';
+            before = 'var nested = ' + package + '[' + quote('encode' + field.type) + '](value)';
             write = buffer + '.writeVarint32(nested.length), ' + buffer + '.append(nested)';
           }
           break;
@@ -204,7 +206,7 @@ exports.generate = function(schema) {
     lines.push('  };');
     lines.push('');
 
-    lines.push('  exports[' + quote('decode' + def.name) + '] = function(buffer) {');
+    lines.push('  ' + package + '[' + quote('decode' + def.name) + '] = function(buffer) {');
     lines.push('    var message = {};');
     lines.push('');
     lines.push('    if (!(buffer instanceof ByteBuffer))');
@@ -248,10 +250,10 @@ exports.generate = function(schema) {
 
         default: {
           if (field.type in enums) {
-            read = 'exports[' + quote('decode' + field.type) + '][buffer.readVarint32()]';
+            read = package + '[' + quote('decode' + field.type) + '][buffer.readVarint32()]';
           } else {
             lines.push('        var limit = pushTemporaryLength(buffer);');
-            read = 'exports[' + quote('decode' + field.type) + '](buffer)';
+            read = package + '[' + quote('decode' + field.type) + '](buffer)';
             after = 'buffer.limit = limit';
           }
           break;
