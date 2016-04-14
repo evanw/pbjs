@@ -1,0 +1,20 @@
+{
+  "name": "pbjs",
+  "version": "0.0.1",
+  "description": "A minimal implementation of Google Protocol Buffers for JavaScript",
+  "main": "./index.js",
+  "bin": {
+    "pbjs": "./cli.js"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha"
+  },
+  "dependencies": {
+    "bytebuffer": "5.0.1",
+    "commander": "2.9.0",
+    "protocol-buffers-schema": "3.1.0"
+  },
+  "devDependencies": {
+    "protobufjs": "5.0.1"
+  }
+}
