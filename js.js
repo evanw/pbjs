@@ -133,7 +133,7 @@ exports.generate = function(schema) {
         case 'fixed32': type = TYPE_SIZE_4; write = buffer + '.writeUint32(value)'; break;
         case 'fixed64': type = TYPE_SIZE_8; write = buffer + '.writeUint64(coerceLong(value))'; break;
         case 'float': type = TYPE_SIZE_4; write = buffer + '.writeFloat(value)'; break;
-        case 'int32': type = TYPE_VAR_INT; write = buffer + '.writeVarint32(value)'; break;
+        case 'int32': type = TYPE_VAR_INT; write = buffer + '.writeVarint64(value | 0)'; break;
         case 'int64': type = TYPE_VAR_INT; write = buffer + '.writeVarint64(coerceLong(value))'; break;
         case 'sfixed32': type = TYPE_SIZE_4; write = buffer + '.writeInt32(value)'; break;
         case 'sfixed64': type = TYPE_SIZE_8; write = buffer + '.writeInt64(coerceLong(value))'; break;

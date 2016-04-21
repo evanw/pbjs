@@ -85,7 +85,7 @@ test.Long = ByteBuffer.Long;
     var value = message["field_int32"];
     if (value !== undefined) {
       buffer.writeVarint32(8);
-      buffer.writeVarint32(value);
+      buffer.writeVarint64(value | 0);
     }
 
     // optional int64 field_int64 = 2;
@@ -310,7 +310,7 @@ test.Long = ByteBuffer.Long;
       for (var i = 0; i < values.length; i++) {
         var value = values[i];
         buffer.writeVarint32(8);
-        buffer.writeVarint32(value);
+        buffer.writeVarint64(value | 0);
       }
     }
 
@@ -701,7 +701,7 @@ test.Long = ByteBuffer.Long;
       var packed = new ByteBuffer(undefined, true)
       for (var i = 0; i < values.length; i++) {
         var value = values[i];
-        packed.writeVarint32(value);
+        packed.writeVarint64(value | 0);
       }
       buffer.writeVarint32(10);
       buffer.writeVarint32(packed.flip().limit);

@@ -41,9 +41,8 @@ it('optional', function() {
 
   assert.deepEqual(message3, message);
 
-  // // This is impossible to test because of https://github.com/dcodeIO/protobuf.js/issues/419
-  // var buffer2 = schema2.Optional.encode(message).toBuffer();
-  // assert.deepEqual(buffer2, buffer);
+  var buffer2 = schema2.Optional.encode(message).toBuffer();
+  assert.deepEqual(buffer2, buffer);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,9 +87,8 @@ it('repeated unpacked', function() {
 
   assert.deepEqual(message3, message);
 
-  // // This is impossible to test because of https://github.com/dcodeIO/protobuf.js/issues/419
-  // var buffer2 = schema2.RepeatedUnpacked.encode(message).toBuffer();
-  // assert.deepEqual(buffer2, buffer);
+  var buffer2 = schema2.RepeatedUnpacked.encode(message).toBuffer();
+  assert.deepEqual(buffer2, buffer);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,9 +133,8 @@ it('repeated packed', function() {
 
   assert.deepEqual(message3, message);
 
-  // // This is impossible to test because of https://github.com/dcodeIO/protobuf.js/issues/419
-  // var buffer2 = schema2.RepeatedPacked.encode(message).toBuffer();
-  // assert.deepEqual(buffer2, buffer);
+  var buffer2 = schema2.RepeatedPacked.encode(message).toBuffer();
+  assert.deepEqual(buffer2, buffer);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
