@@ -18,7 +18,7 @@ if (!process.argv.slice(2).length) {
 }
 
 var contents = fs.readFileSync(commander.args[0], 'utf8');
-var schema = index.parseSchema(contents).compile();
+var schema = index.parseSchema(contents);
 
 // Generate JavaScript code
 if (commander.js) {
