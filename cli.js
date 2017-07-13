@@ -18,7 +18,7 @@ if (!process.argv.slice(2).length) {
 }
 
 var contents = fs.readFileSync(commander.args[0], 'utf8');
-var schema = index.parseSchema(contents).compile();
+var schema = index.parseSchema(contents);
 
 // Generate JavaScript code
 if (commander.js) {
@@ -33,7 +33,7 @@ else if (commander.decode) {
     chunks.push(chunk);
   });
   process.stdin.on('end', function() {
-    console.log(JSON.stringify(schema['decode' + commander.decode](Buffer.concat(chunks)), null, 2));
+    console.log(JSON.stringify(schema.compile()['decode' + commander.decode](Buffer.concat(chunks)), null, 2));
   });
   process.stdin.resume();
 }
@@ -45,7 +45,7 @@ else if (commander.encode) {
     chunks.push(chunk);
   });
   process.stdin.on('end', function() {
-    process.stdout.write(schema['encode' + commander.encode](JSON.parse(chunks.join(''))));
+    process.stdout.write(schema.compile()['encode' + commander.encode](JSON.parse(chunks.join(''))));
   });
   process.stdin.resume();
 }
