@@ -192,7 +192,7 @@ test.Long = ByteBuffer.Long;
     if (value !== undefined) {
       buffer.writeVarint32(130);
       var nested = test["encodeNested"](value);
-      buffer.writeVarint32(nested.length), buffer.append(nested);
+      buffer.writeVarint32(nested.byteLength), buffer.append(nested);
     }
 
     return buffer.flip().toBuffer();
@@ -462,7 +462,7 @@ test.Long = ByteBuffer.Long;
         var value = values[i];
         var nested = test["encodeNested"](value);
         buffer.writeVarint32(130);
-        buffer.writeVarint32(nested.length), buffer.append(nested);
+        buffer.writeVarint32(nested.byteLength), buffer.append(nested);
       }
     }
 
@@ -892,7 +892,7 @@ test.Long = ByteBuffer.Long;
         var value = values[i];
         var nested = test["encodeNested"](value);
         buffer.writeVarint32(130);
-        buffer.writeVarint32(nested.length), buffer.append(nested);
+        buffer.writeVarint32(nested.byteLength), buffer.append(nested);
       }
     }
 
