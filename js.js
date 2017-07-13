@@ -156,7 +156,7 @@ exports.generate = function(schema) {
           } else {
             type = TYPE_SIZE_N;
             before = 'var nested = ' + package + '[' + quote('encode' + field.type) + '](value)';
-            write = buffer + '.writeVarint32(nested.length), ' + buffer + '.append(nested)';
+            write = buffer + '.writeVarint32(nested.byteLength), ' + buffer + '.append(nested)';
           }
           break;
         }
