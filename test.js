@@ -1,3 +1,4 @@
+var child_process = require('child_process');
 var bytebuffer = require('bytebuffer');
 var protobufjs = require('protobufjs');
 var assert = require('assert');
@@ -140,5 +141,86 @@ it('repeated packed', function() {
 ////////////////////////////////////////////////////////////////////////////////
 
 it('javascript', function() {
-  fs.writeFileSync('test.proto.js', index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).toJavaScript());
+  var js = fs.readFileSync('./test.proto.js', 'utf8');
+  var js2 = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).toJavaScript();
+  assert.strictEqual(js, js2);
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+it('cli: generate js', function(done) {
+  fs.unlink('./temp.js', function() {
+    var js = fs.readFileSync('./test.proto.js', 'utf8');
+    child_process.spawn('node', ['./cli.js', './test.proto', '--js', './temp.js']).on('close', function() {
+      var js2 = fs.readFileSync('./temp.js', 'utf8');
+      fs.unlink('./temp.js', function() {
+        try {
+          assert.strictEqual(js, js2);
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+    });
+  });
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+it('cli: encode', function(done) {
+  var schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+
+  var message = {
+    x: 1.5,
+    y: -2.5,
+  };
+
+  var cli = child_process.spawn('node', ['./cli.js', './test.proto', '--encode', 'Nested']);
+  var chunks = [];
+
+  cli.stdin.write(JSON.stringify(message));
+  cli.stdin.end();
+
+  cli.stdout.on('data', function(chunk) {
+    chunks.push(chunk);
+  });
+
+  cli.on('close', function() {
+    try {
+      assert.deepStrictEqual(Buffer.concat(chunks), schema.encodeNested(message));
+      done();
+    } catch (e) {
+      done(e);
+    }
+  });
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+it('cli: decode', function(done) {
+  var schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+
+  var message = {
+    x: 1.5,
+    y: -2.5,
+  };
+
+  var cli = child_process.spawn('node', ['./cli.js', './test.proto', '--decode', 'Nested']);
+  var chunks = [];
+
+  cli.stdin.write(schema.encodeNested(message));
+  cli.stdin.end();
+
+  cli.stdout.on('data', function(chunk) {
+    chunks.push(chunk);
+  });
+
+  cli.on('close', function() {
+    try {
+      assert.strictEqual(Buffer.concat(chunks).toString(), JSON.stringify(message, null, 2) + '\n');
+      done();
+    } catch (e) {
+      done(e);
+    }
+  });
 });
