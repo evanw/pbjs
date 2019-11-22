@@ -15,6 +15,7 @@
     "protocol-buffers-schema": "3.1.0"
   },
   "devDependencies": {
+    "mocha": "6.2.2",
     "protobufjs": "5.0.1"
   }
 }
