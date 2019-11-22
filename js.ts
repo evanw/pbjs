@@ -66,7 +66,7 @@ export function generate(schema: Schema, options?: Options): string {
 
   const prefix = es6 ? '' : pkg + '.';
 
-  lines.push(`function $pushTemporaryLength(buffer${ts('ByteBuffer')})${ts('number')} {`);
+  lines.push(`function pushTemporaryLength(buffer${ts('ByteBuffer')})${ts('number')} {`);
   lines.push(`  ${varOrConst} length = buffer.readVarint32();`);
   lines.push(`  ${varOrConst} limit = buffer.limit;`);
   lines.push(`  buffer.limit = buffer.offset + length;`);
@@ -74,7 +74,7 @@ export function generate(schema: Schema, options?: Options): string {
   lines.push(`}`);
   lines.push(``);
 
-  lines.push(`function $skipUnknownField(buffer${ts('ByteBuffer')}, type${ts('number')})${ts('void')} {`);
+  lines.push(`function skipUnknownField(buffer${ts('ByteBuffer')}, type${ts('number')})${ts('void')} {`);
   lines.push(`  switch (type) {`);
   lines.push(`    case ${TYPE_VAR_INT}: while (buffer.readByte() & 0x80) {} break;`);
   lines.push(`    case ${TYPE_SIZE_N}: buffer.skip(buffer.readVarint32()); break;`);
@@ -85,7 +85,7 @@ export function generate(schema: Schema, options?: Options): string {
   lines.push(`}`);
   lines.push(``);
 
-  lines.push(`function $coerceLong(value${ts('any')})${ts('Long')} {`);
+  lines.push(`function coerceLong(value${ts('any')})${ts('Long')} {`);
   lines.push(`  if (!(value instanceof ${typescript ? '' : 'ByteBuffer.'}Long) && "low" in value && "high" in value)`);
   lines.push(`    value = new ${typescript ? '' : 'ByteBuffer.'}Long(value.low, value.high, value.unsigned);`);
   lines.push(`  return value;`);
@@ -218,16 +218,16 @@ export function generate(schema: Schema, options?: Options): string {
         case 'bytes': type = TYPE_SIZE_N; write = `${buffer}.writeVarint32(${value}.length), ${buffer}.append(${value})`; break;
         case 'double': type = TYPE_SIZE_8; write = `${buffer}.writeDouble(${value})`; break;
         case 'fixed32': type = TYPE_SIZE_4; write = `${buffer}.writeUint32(${value})`; break;
-        case 'fixed64': type = TYPE_SIZE_8; write = `${buffer}.writeUint64($coerceLong(${value}))`; break;
+        case 'fixed64': type = TYPE_SIZE_8; write = `${buffer}.writeUint64(coerceLong(${value}))`; break;
         case 'float': type = TYPE_SIZE_4; write = `${buffer}.writeFloat(${value})`; break;
         case 'int32': type = TYPE_VAR_INT; write = `${buffer}.writeVarint64(${value} | 0)`; break;
-        case 'int64': type = TYPE_VAR_INT; write = `${buffer}.writeVarint64($coerceLong(${value}))`; break;
+        case 'int64': type = TYPE_VAR_INT; write = `${buffer}.writeVarint64(coerceLong(${value}))`; break;
         case 'sfixed32': type = TYPE_SIZE_4; write = `${buffer}.writeInt32(${value})`; break;
-        case 'sfixed64': type = TYPE_SIZE_8; write = `${buffer}.writeInt64($coerceLong(${value}))`; break;
+        case 'sfixed64': type = TYPE_SIZE_8; write = `${buffer}.writeInt64(coerceLong(${value}))`; break;
         case 'sint32': type = TYPE_VAR_INT; write = `${buffer}.writeVarint32ZigZag(${value})`; break;
-        case 'sint64': type = TYPE_VAR_INT; write = `${buffer}.writeVarint64ZigZag($coerceLong(${value}))`; break;
+        case 'sint64': type = TYPE_VAR_INT; write = `${buffer}.writeVarint64ZigZag(coerceLong(${value}))`; break;
         case 'uint32': type = TYPE_VAR_INT; write = `${buffer}.writeVarint32(${value})`; break;
-        case 'uint64': type = TYPE_VAR_INT; write = `${buffer}.writeVarint64($coerceLong(${value}))`; break;
+        case 'uint64': type = TYPE_VAR_INT; write = `${buffer}.writeVarint64(coerceLong(${value}))`; break;
 
         case 'string': {
           type = TYPE_SIZE_N;
@@ -343,7 +343,7 @@ export function generate(schema: Schema, options?: Options): string {
           if (field.type in enums) {
             read = `${prefix}decode${field.type}[buffer.readVarint32()]`;
           } else {
-            lines.push(`      ${varOrConst} limit = $pushTemporaryLength(buffer);`);
+            lines.push(`      ${varOrConst} limit = pushTemporaryLength(buffer);`);
             read = `${prefix}decode${field.type}(buffer)`;
             after = 'buffer.limit = limit';
           }
@@ -357,7 +357,7 @@ export function generate(schema: Schema, options?: Options): string {
         // Support both packed and unpacked encodings for primitive types
         if (field.type in packableTypes) {
           lines.push(`      if ((tag & 7) === ${TYPE_SIZE_N}) {`);
-          lines.push(`        ${varOrConst} outerLimit = $pushTemporaryLength(buffer);`);
+          lines.push(`        ${varOrConst} outerLimit = pushTemporaryLength(buffer);`);
           lines.push(`        while (buffer.remaining() > 0) {`);
           lines.push(`          values.push(${read});`);
           if (after) lines.push(`          ${after};`);
@@ -386,7 +386,7 @@ export function generate(schema: Schema, options?: Options): string {
     }
 
     lines.push(`    default:`);
-    lines.push(`      $skipUnknownField(buffer, tag & 7);`);
+    lines.push(`      skipUnknownField(buffer, tag & 7);`);
     lines.push(`    }`);
     lines.push(`  }`);
     lines.push(``);

@@ -1,14 +1,14 @@
 import * as ByteBuffer from "bytebuffer";
 import * as Long from "long";
 
-function $pushTemporaryLength(buffer: ByteBuffer): number {
+function pushTemporaryLength(buffer: ByteBuffer): number {
   const length = buffer.readVarint32();
   const limit = buffer.limit;
   buffer.limit = buffer.offset + length;
   return limit;
 }
 
-function $skipUnknownField(buffer: ByteBuffer, type: number): void {
+function skipUnknownField(buffer: ByteBuffer, type: number): void {
   switch (type) {
     case 0: while (buffer.readByte() & 0x80) {} break;
     case 2: buffer.skip(buffer.readVarint32()); break;
@@ -18,7 +18,7 @@ function $skipUnknownField(buffer: ByteBuffer, type: number): void {
   }
 }
 
-function $coerceLong(value: any): Long {
+function coerceLong(value: any): Long {
   if (!(value instanceof Long) && "low" in value && "high" in value)
     value = new Long(value.low, value.high, value.unsigned);
   return value;
@@ -88,7 +88,7 @@ export function decodeNested(binary: ByteBuffer | Uint8Array | ArrayBuffer): Nes
     }
 
     default:
-      $skipUnknownField(buffer, tag & 7);
+      skipUnknownField(buffer, tag & 7);
     }
   }
 
@@ -128,7 +128,7 @@ export function encodeOptional(message: Optional): Uint8Array {
   const $field_int64 = message.field_int64;
   if ($field_int64 !== undefined) {
     buffer.writeVarint32(16);
-    buffer.writeVarint64($coerceLong($field_int64));
+    buffer.writeVarint64(coerceLong($field_int64));
   }
 
   // optional uint32 field_uint32 = 3;
@@ -142,7 +142,7 @@ export function encodeOptional(message: Optional): Uint8Array {
   const $field_uint64 = message.field_uint64;
   if ($field_uint64 !== undefined) {
     buffer.writeVarint32(32);
-    buffer.writeVarint64($coerceLong($field_uint64));
+    buffer.writeVarint64(coerceLong($field_uint64));
   }
 
   // optional sint32 field_sint32 = 5;
@@ -156,7 +156,7 @@ export function encodeOptional(message: Optional): Uint8Array {
   const $field_sint64 = message.field_sint64;
   if ($field_sint64 !== undefined) {
     buffer.writeVarint32(48);
-    buffer.writeVarint64ZigZag($coerceLong($field_sint64));
+    buffer.writeVarint64ZigZag(coerceLong($field_sint64));
   }
 
   // optional bool field_bool = 7;
@@ -170,14 +170,14 @@ export function encodeOptional(message: Optional): Uint8Array {
   const $field_fixed64 = message.field_fixed64;
   if ($field_fixed64 !== undefined) {
     buffer.writeVarint32(65);
-    buffer.writeUint64($coerceLong($field_fixed64));
+    buffer.writeUint64(coerceLong($field_fixed64));
   }
 
   // optional sfixed64 field_sfixed64 = 9;
   const $field_sfixed64 = message.field_sfixed64;
   if ($field_sfixed64 !== undefined) {
     buffer.writeVarint32(73);
-    buffer.writeInt64($coerceLong($field_sfixed64));
+    buffer.writeInt64(coerceLong($field_sfixed64));
   }
 
   // optional double field_double = 10;
@@ -337,14 +337,14 @@ export function decodeOptional(binary: ByteBuffer | Uint8Array | ArrayBuffer): O
 
     // optional Nested field_nested = 16;
     case 16: {
-      const limit = $pushTemporaryLength(buffer);
+      const limit = pushTemporaryLength(buffer);
       message.field_nested = decodeNested(buffer);
       buffer.limit = limit;
       break;
     }
 
     default:
-      $skipUnknownField(buffer, tag & 7);
+      skipUnknownField(buffer, tag & 7);
     }
   }
 
@@ -387,7 +387,7 @@ export function encodeRepeatedUnpacked(message: RepeatedUnpacked): Uint8Array {
   if (array$field_int64 !== undefined) {
     for (const $field_int64 of array$field_int64) {
       buffer.writeVarint32(16);
-      buffer.writeVarint64($coerceLong($field_int64));
+      buffer.writeVarint64(coerceLong($field_int64));
     }
   }
 
@@ -405,7 +405,7 @@ export function encodeRepeatedUnpacked(message: RepeatedUnpacked): Uint8Array {
   if (array$field_uint64 !== undefined) {
     for (const $field_uint64 of array$field_uint64) {
       buffer.writeVarint32(32);
-      buffer.writeVarint64($coerceLong($field_uint64));
+      buffer.writeVarint64(coerceLong($field_uint64));
     }
   }
 
@@ -423,7 +423,7 @@ export function encodeRepeatedUnpacked(message: RepeatedUnpacked): Uint8Array {
   if (array$field_sint64 !== undefined) {
     for (const $field_sint64 of array$field_sint64) {
       buffer.writeVarint32(48);
-      buffer.writeVarint64ZigZag($coerceLong($field_sint64));
+      buffer.writeVarint64ZigZag(coerceLong($field_sint64));
     }
   }
 
@@ -441,7 +441,7 @@ export function encodeRepeatedUnpacked(message: RepeatedUnpacked): Uint8Array {
   if (array$field_fixed64 !== undefined) {
     for (const $field_fixed64 of array$field_fixed64) {
       buffer.writeVarint32(65);
-      buffer.writeUint64($coerceLong($field_fixed64));
+      buffer.writeUint64(coerceLong($field_fixed64));
     }
   }
 
@@ -450,7 +450,7 @@ export function encodeRepeatedUnpacked(message: RepeatedUnpacked): Uint8Array {
   if (array$field_sfixed64 !== undefined) {
     for (const $field_sfixed64 of array$field_sfixed64) {
       buffer.writeVarint32(73);
-      buffer.writeInt64($coerceLong($field_sfixed64));
+      buffer.writeInt64(coerceLong($field_sfixed64));
     }
   }
 
@@ -537,7 +537,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     case 1: {
       const values = message.field_int32 || (message.field_int32 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint32());
         }
@@ -552,7 +552,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     case 2: {
       const values = message.field_int64 || (message.field_int64 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint64());
         }
@@ -567,7 +567,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     case 3: {
       const values = message.field_uint32 || (message.field_uint32 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint32() >>> 0);
         }
@@ -582,7 +582,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     case 4: {
       const values = message.field_uint64 || (message.field_uint64 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint64().toUnsigned());
         }
@@ -597,7 +597,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     case 5: {
       const values = message.field_sint32 || (message.field_sint32 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint32ZigZag());
         }
@@ -612,7 +612,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     case 6: {
       const values = message.field_sint64 || (message.field_sint64 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint64ZigZag());
         }
@@ -627,7 +627,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     case 7: {
       const values = message.field_bool || (message.field_bool = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(!!buffer.readByte());
         }
@@ -642,7 +642,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     case 8: {
       const values = message.field_fixed64 || (message.field_fixed64 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readUint64());
         }
@@ -657,7 +657,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     case 9: {
       const values = message.field_sfixed64 || (message.field_sfixed64 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readInt64());
         }
@@ -672,7 +672,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     case 10: {
       const values = message.field_double || (message.field_double = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readDouble());
         }
@@ -701,7 +701,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     case 13: {
       const values = message.field_fixed32 || (message.field_fixed32 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readUint32());
         }
@@ -716,7 +716,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     case 14: {
       const values = message.field_sfixed32 || (message.field_sfixed32 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readInt32());
         }
@@ -731,7 +731,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     case 15: {
       const values = message.field_float || (message.field_float = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readFloat());
         }
@@ -744,7 +744,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
 
     // repeated Nested field_nested = 16;
     case 16: {
-      const limit = $pushTemporaryLength(buffer);
+      const limit = pushTemporaryLength(buffer);
       const values = message.field_nested || (message.field_nested = []);
       values.push(decodeNested(buffer));
       buffer.limit = limit;
@@ -752,7 +752,7 @@ export function decodeRepeatedUnpacked(binary: ByteBuffer | Uint8Array | ArrayBu
     }
 
     default:
-      $skipUnknownField(buffer, tag & 7);
+      skipUnknownField(buffer, tag & 7);
     }
   }
 
@@ -799,7 +799,7 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   if (array$field_int64 !== undefined) {
     const packed = new ByteBuffer(undefined, /* isLittleEndian */ true);
     for (const $field_int64 of array$field_int64) {
-      packed.writeVarint64($coerceLong($field_int64));
+      packed.writeVarint64(coerceLong($field_int64));
     }
     buffer.writeVarint32(18);
     buffer.writeVarint32(packed.flip().limit);
@@ -823,7 +823,7 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   if (array$field_uint64 !== undefined) {
     const packed = new ByteBuffer(undefined, /* isLittleEndian */ true);
     for (const $field_uint64 of array$field_uint64) {
-      packed.writeVarint64($coerceLong($field_uint64));
+      packed.writeVarint64(coerceLong($field_uint64));
     }
     buffer.writeVarint32(34);
     buffer.writeVarint32(packed.flip().limit);
@@ -847,7 +847,7 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   if (array$field_sint64 !== undefined) {
     const packed = new ByteBuffer(undefined, /* isLittleEndian */ true);
     for (const $field_sint64 of array$field_sint64) {
-      packed.writeVarint64ZigZag($coerceLong($field_sint64));
+      packed.writeVarint64ZigZag(coerceLong($field_sint64));
     }
     buffer.writeVarint32(50);
     buffer.writeVarint32(packed.flip().limit);
@@ -871,7 +871,7 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   if (array$field_fixed64 !== undefined) {
     const packed = new ByteBuffer(undefined, /* isLittleEndian */ true);
     for (const $field_fixed64 of array$field_fixed64) {
-      packed.writeUint64($coerceLong($field_fixed64));
+      packed.writeUint64(coerceLong($field_fixed64));
     }
     buffer.writeVarint32(66);
     buffer.writeVarint32(packed.flip().limit);
@@ -883,7 +883,7 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   if (array$field_sfixed64 !== undefined) {
     const packed = new ByteBuffer(undefined, /* isLittleEndian */ true);
     for (const $field_sfixed64 of array$field_sfixed64) {
-      packed.writeInt64($coerceLong($field_sfixed64));
+      packed.writeInt64(coerceLong($field_sfixed64));
     }
     buffer.writeVarint32(74);
     buffer.writeVarint32(packed.flip().limit);
@@ -995,7 +995,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     case 1: {
       const values = message.field_int32 || (message.field_int32 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint32());
         }
@@ -1010,7 +1010,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     case 2: {
       const values = message.field_int64 || (message.field_int64 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint64());
         }
@@ -1025,7 +1025,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     case 3: {
       const values = message.field_uint32 || (message.field_uint32 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint32() >>> 0);
         }
@@ -1040,7 +1040,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     case 4: {
       const values = message.field_uint64 || (message.field_uint64 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint64().toUnsigned());
         }
@@ -1055,7 +1055,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     case 5: {
       const values = message.field_sint32 || (message.field_sint32 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint32ZigZag());
         }
@@ -1070,7 +1070,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     case 6: {
       const values = message.field_sint64 || (message.field_sint64 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint64ZigZag());
         }
@@ -1085,7 +1085,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     case 7: {
       const values = message.field_bool || (message.field_bool = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(!!buffer.readByte());
         }
@@ -1100,7 +1100,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     case 8: {
       const values = message.field_fixed64 || (message.field_fixed64 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readUint64());
         }
@@ -1115,7 +1115,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     case 9: {
       const values = message.field_sfixed64 || (message.field_sfixed64 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readInt64());
         }
@@ -1130,7 +1130,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     case 10: {
       const values = message.field_double || (message.field_double = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readDouble());
         }
@@ -1159,7 +1159,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     case 13: {
       const values = message.field_fixed32 || (message.field_fixed32 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readUint32());
         }
@@ -1174,7 +1174,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     case 14: {
       const values = message.field_sfixed32 || (message.field_sfixed32 = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readInt32());
         }
@@ -1189,7 +1189,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     case 15: {
       const values = message.field_float || (message.field_float = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readFloat());
         }
@@ -1202,7 +1202,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
 
     // repeated Nested field_nested = 16;
     case 16: {
-      const limit = $pushTemporaryLength(buffer);
+      const limit = pushTemporaryLength(buffer);
       const values = message.field_nested || (message.field_nested = []);
       values.push(decodeNested(buffer));
       buffer.limit = limit;
@@ -1211,7 +1211,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
 
     // repeated Nested field_nested2 = 17;
     case 17: {
-      const limit = $pushTemporaryLength(buffer);
+      const limit = pushTemporaryLength(buffer);
       const values = message.field_nested2 || (message.field_nested2 = []);
       values.push(decodeNested(buffer));
       buffer.limit = limit;
@@ -1219,7 +1219,7 @@ export function decodeRepeatedPacked(binary: ByteBuffer | Uint8Array | ArrayBuff
     }
 
     default:
-      $skipUnknownField(buffer, tag & 7);
+      skipUnknownField(buffer, tag & 7);
     }
   }
 
@@ -1291,7 +1291,7 @@ export function decodeEnumTest(binary: ByteBuffer | Uint8Array | ArrayBuffer): E
     case 3: {
       const values = message.c || (message.c = []);
       if ((tag & 7) === 2) {
-        const outerLimit = $pushTemporaryLength(buffer);
+        const outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(decodeEnum[buffer.readVarint32()]);
         }
@@ -1303,7 +1303,7 @@ export function decodeEnumTest(binary: ByteBuffer | Uint8Array | ArrayBuffer): E
     }
 
     default:
-      $skipUnknownField(buffer, tag & 7);
+      skipUnknownField(buffer, tag & 7);
     }
   }
 

@@ -4,14 +4,14 @@ test.Long = ByteBuffer.Long;
 
 (function(undefined) {
 
-function $pushTemporaryLength(buffer) {
+function pushTemporaryLength(buffer) {
   var length = buffer.readVarint32();
   var limit = buffer.limit;
   buffer.limit = buffer.offset + length;
   return limit;
 }
 
-function $skipUnknownField(buffer, type) {
+function skipUnknownField(buffer, type) {
   switch (type) {
     case 0: while (buffer.readByte() & 0x80) {} break;
     case 2: buffer.skip(buffer.readVarint32()); break;
@@ -21,7 +21,7 @@ function $skipUnknownField(buffer, type) {
   }
 }
 
-function $coerceLong(value) {
+function coerceLong(value) {
   if (!(value instanceof ByteBuffer.Long) && "low" in value && "high" in value)
     value = new ByteBuffer.Long(value.low, value.high, value.unsigned);
   return value;
@@ -81,7 +81,7 @@ test.decodeNested = function(binary) {
     }
 
     default:
-      $skipUnknownField(buffer, tag & 7);
+      skipUnknownField(buffer, tag & 7);
     }
   }
 
@@ -102,7 +102,7 @@ test.encodeOptional = function(message) {
   var $field_int64 = message.field_int64;
   if ($field_int64 !== undefined) {
     buffer.writeVarint32(16);
-    buffer.writeVarint64($coerceLong($field_int64));
+    buffer.writeVarint64(coerceLong($field_int64));
   }
 
   // optional uint32 field_uint32 = 3;
@@ -116,7 +116,7 @@ test.encodeOptional = function(message) {
   var $field_uint64 = message.field_uint64;
   if ($field_uint64 !== undefined) {
     buffer.writeVarint32(32);
-    buffer.writeVarint64($coerceLong($field_uint64));
+    buffer.writeVarint64(coerceLong($field_uint64));
   }
 
   // optional sint32 field_sint32 = 5;
@@ -130,7 +130,7 @@ test.encodeOptional = function(message) {
   var $field_sint64 = message.field_sint64;
   if ($field_sint64 !== undefined) {
     buffer.writeVarint32(48);
-    buffer.writeVarint64ZigZag($coerceLong($field_sint64));
+    buffer.writeVarint64ZigZag(coerceLong($field_sint64));
   }
 
   // optional bool field_bool = 7;
@@ -144,14 +144,14 @@ test.encodeOptional = function(message) {
   var $field_fixed64 = message.field_fixed64;
   if ($field_fixed64 !== undefined) {
     buffer.writeVarint32(65);
-    buffer.writeUint64($coerceLong($field_fixed64));
+    buffer.writeUint64(coerceLong($field_fixed64));
   }
 
   // optional sfixed64 field_sfixed64 = 9;
   var $field_sfixed64 = message.field_sfixed64;
   if ($field_sfixed64 !== undefined) {
     buffer.writeVarint32(73);
-    buffer.writeInt64($coerceLong($field_sfixed64));
+    buffer.writeInt64(coerceLong($field_sfixed64));
   }
 
   // optional double field_double = 10;
@@ -311,14 +311,14 @@ test.decodeOptional = function(binary) {
 
     // optional Nested field_nested = 16;
     case 16: {
-      var limit = $pushTemporaryLength(buffer);
+      var limit = pushTemporaryLength(buffer);
       message.field_nested = test.decodeNested(buffer);
       buffer.limit = limit;
       break;
     }
 
     default:
-      $skipUnknownField(buffer, tag & 7);
+      skipUnknownField(buffer, tag & 7);
     }
   }
 
@@ -344,7 +344,7 @@ test.encodeRepeatedUnpacked = function(message) {
     for (var i = 0; i < array$field_int64.length; i++) {
       var $field_int64 = array$field_int64[i];
       buffer.writeVarint32(16);
-      buffer.writeVarint64($coerceLong($field_int64));
+      buffer.writeVarint64(coerceLong($field_int64));
     }
   }
 
@@ -364,7 +364,7 @@ test.encodeRepeatedUnpacked = function(message) {
     for (var i = 0; i < array$field_uint64.length; i++) {
       var $field_uint64 = array$field_uint64[i];
       buffer.writeVarint32(32);
-      buffer.writeVarint64($coerceLong($field_uint64));
+      buffer.writeVarint64(coerceLong($field_uint64));
     }
   }
 
@@ -384,7 +384,7 @@ test.encodeRepeatedUnpacked = function(message) {
     for (var i = 0; i < array$field_sint64.length; i++) {
       var $field_sint64 = array$field_sint64[i];
       buffer.writeVarint32(48);
-      buffer.writeVarint64ZigZag($coerceLong($field_sint64));
+      buffer.writeVarint64ZigZag(coerceLong($field_sint64));
     }
   }
 
@@ -404,7 +404,7 @@ test.encodeRepeatedUnpacked = function(message) {
     for (var i = 0; i < array$field_fixed64.length; i++) {
       var $field_fixed64 = array$field_fixed64[i];
       buffer.writeVarint32(65);
-      buffer.writeUint64($coerceLong($field_fixed64));
+      buffer.writeUint64(coerceLong($field_fixed64));
     }
   }
 
@@ -414,7 +414,7 @@ test.encodeRepeatedUnpacked = function(message) {
     for (var i = 0; i < array$field_sfixed64.length; i++) {
       var $field_sfixed64 = array$field_sfixed64[i];
       buffer.writeVarint32(73);
-      buffer.writeInt64($coerceLong($field_sfixed64));
+      buffer.writeInt64(coerceLong($field_sfixed64));
     }
   }
 
@@ -508,7 +508,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     case 1: {
       var values = message.field_int32 || (message.field_int32 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint32());
         }
@@ -523,7 +523,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     case 2: {
       var values = message.field_int64 || (message.field_int64 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint64());
         }
@@ -538,7 +538,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     case 3: {
       var values = message.field_uint32 || (message.field_uint32 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint32() >>> 0);
         }
@@ -553,7 +553,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     case 4: {
       var values = message.field_uint64 || (message.field_uint64 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint64().toUnsigned());
         }
@@ -568,7 +568,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     case 5: {
       var values = message.field_sint32 || (message.field_sint32 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint32ZigZag());
         }
@@ -583,7 +583,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     case 6: {
       var values = message.field_sint64 || (message.field_sint64 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint64ZigZag());
         }
@@ -598,7 +598,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     case 7: {
       var values = message.field_bool || (message.field_bool = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(!!buffer.readByte());
         }
@@ -613,7 +613,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     case 8: {
       var values = message.field_fixed64 || (message.field_fixed64 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readUint64());
         }
@@ -628,7 +628,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     case 9: {
       var values = message.field_sfixed64 || (message.field_sfixed64 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readInt64());
         }
@@ -643,7 +643,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     case 10: {
       var values = message.field_double || (message.field_double = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readDouble());
         }
@@ -672,7 +672,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     case 13: {
       var values = message.field_fixed32 || (message.field_fixed32 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readUint32());
         }
@@ -687,7 +687,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     case 14: {
       var values = message.field_sfixed32 || (message.field_sfixed32 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readInt32());
         }
@@ -702,7 +702,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     case 15: {
       var values = message.field_float || (message.field_float = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readFloat());
         }
@@ -715,7 +715,7 @@ test.decodeRepeatedUnpacked = function(binary) {
 
     // repeated Nested field_nested = 16;
     case 16: {
-      var limit = $pushTemporaryLength(buffer);
+      var limit = pushTemporaryLength(buffer);
       var values = message.field_nested || (message.field_nested = []);
       values.push(test.decodeNested(buffer));
       buffer.limit = limit;
@@ -723,7 +723,7 @@ test.decodeRepeatedUnpacked = function(binary) {
     }
 
     default:
-      $skipUnknownField(buffer, tag & 7);
+      skipUnknownField(buffer, tag & 7);
     }
   }
 
@@ -752,7 +752,7 @@ test.encodeRepeatedPacked = function(message) {
     var packed = new ByteBuffer(undefined, /* isLittleEndian */ true);
     for (var i = 0; i < array$field_int64.length; i++) {
       var $field_int64 = array$field_int64[i];
-      packed.writeVarint64($coerceLong($field_int64));
+      packed.writeVarint64(coerceLong($field_int64));
     }
     buffer.writeVarint32(18);
     buffer.writeVarint32(packed.flip().limit);
@@ -778,7 +778,7 @@ test.encodeRepeatedPacked = function(message) {
     var packed = new ByteBuffer(undefined, /* isLittleEndian */ true);
     for (var i = 0; i < array$field_uint64.length; i++) {
       var $field_uint64 = array$field_uint64[i];
-      packed.writeVarint64($coerceLong($field_uint64));
+      packed.writeVarint64(coerceLong($field_uint64));
     }
     buffer.writeVarint32(34);
     buffer.writeVarint32(packed.flip().limit);
@@ -804,7 +804,7 @@ test.encodeRepeatedPacked = function(message) {
     var packed = new ByteBuffer(undefined, /* isLittleEndian */ true);
     for (var i = 0; i < array$field_sint64.length; i++) {
       var $field_sint64 = array$field_sint64[i];
-      packed.writeVarint64ZigZag($coerceLong($field_sint64));
+      packed.writeVarint64ZigZag(coerceLong($field_sint64));
     }
     buffer.writeVarint32(50);
     buffer.writeVarint32(packed.flip().limit);
@@ -830,7 +830,7 @@ test.encodeRepeatedPacked = function(message) {
     var packed = new ByteBuffer(undefined, /* isLittleEndian */ true);
     for (var i = 0; i < array$field_fixed64.length; i++) {
       var $field_fixed64 = array$field_fixed64[i];
-      packed.writeUint64($coerceLong($field_fixed64));
+      packed.writeUint64(coerceLong($field_fixed64));
     }
     buffer.writeVarint32(66);
     buffer.writeVarint32(packed.flip().limit);
@@ -843,7 +843,7 @@ test.encodeRepeatedPacked = function(message) {
     var packed = new ByteBuffer(undefined, /* isLittleEndian */ true);
     for (var i = 0; i < array$field_sfixed64.length; i++) {
       var $field_sfixed64 = array$field_sfixed64[i];
-      packed.writeInt64($coerceLong($field_sfixed64));
+      packed.writeInt64(coerceLong($field_sfixed64));
     }
     buffer.writeVarint32(74);
     buffer.writeVarint32(packed.flip().limit);
@@ -963,7 +963,7 @@ test.decodeRepeatedPacked = function(binary) {
     case 1: {
       var values = message.field_int32 || (message.field_int32 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint32());
         }
@@ -978,7 +978,7 @@ test.decodeRepeatedPacked = function(binary) {
     case 2: {
       var values = message.field_int64 || (message.field_int64 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint64());
         }
@@ -993,7 +993,7 @@ test.decodeRepeatedPacked = function(binary) {
     case 3: {
       var values = message.field_uint32 || (message.field_uint32 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint32() >>> 0);
         }
@@ -1008,7 +1008,7 @@ test.decodeRepeatedPacked = function(binary) {
     case 4: {
       var values = message.field_uint64 || (message.field_uint64 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint64().toUnsigned());
         }
@@ -1023,7 +1023,7 @@ test.decodeRepeatedPacked = function(binary) {
     case 5: {
       var values = message.field_sint32 || (message.field_sint32 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint32ZigZag());
         }
@@ -1038,7 +1038,7 @@ test.decodeRepeatedPacked = function(binary) {
     case 6: {
       var values = message.field_sint64 || (message.field_sint64 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readVarint64ZigZag());
         }
@@ -1053,7 +1053,7 @@ test.decodeRepeatedPacked = function(binary) {
     case 7: {
       var values = message.field_bool || (message.field_bool = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(!!buffer.readByte());
         }
@@ -1068,7 +1068,7 @@ test.decodeRepeatedPacked = function(binary) {
     case 8: {
       var values = message.field_fixed64 || (message.field_fixed64 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readUint64());
         }
@@ -1083,7 +1083,7 @@ test.decodeRepeatedPacked = function(binary) {
     case 9: {
       var values = message.field_sfixed64 || (message.field_sfixed64 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readInt64());
         }
@@ -1098,7 +1098,7 @@ test.decodeRepeatedPacked = function(binary) {
     case 10: {
       var values = message.field_double || (message.field_double = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readDouble());
         }
@@ -1127,7 +1127,7 @@ test.decodeRepeatedPacked = function(binary) {
     case 13: {
       var values = message.field_fixed32 || (message.field_fixed32 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readUint32());
         }
@@ -1142,7 +1142,7 @@ test.decodeRepeatedPacked = function(binary) {
     case 14: {
       var values = message.field_sfixed32 || (message.field_sfixed32 = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readInt32());
         }
@@ -1157,7 +1157,7 @@ test.decodeRepeatedPacked = function(binary) {
     case 15: {
       var values = message.field_float || (message.field_float = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(buffer.readFloat());
         }
@@ -1170,7 +1170,7 @@ test.decodeRepeatedPacked = function(binary) {
 
     // repeated Nested field_nested = 16;
     case 16: {
-      var limit = $pushTemporaryLength(buffer);
+      var limit = pushTemporaryLength(buffer);
       var values = message.field_nested || (message.field_nested = []);
       values.push(test.decodeNested(buffer));
       buffer.limit = limit;
@@ -1179,7 +1179,7 @@ test.decodeRepeatedPacked = function(binary) {
 
     // repeated Nested field_nested2 = 17;
     case 17: {
-      var limit = $pushTemporaryLength(buffer);
+      var limit = pushTemporaryLength(buffer);
       var values = message.field_nested2 || (message.field_nested2 = []);
       values.push(test.decodeNested(buffer));
       buffer.limit = limit;
@@ -1187,7 +1187,7 @@ test.decodeRepeatedPacked = function(binary) {
     }
 
     default:
-      $skipUnknownField(buffer, tag & 7);
+      skipUnknownField(buffer, tag & 7);
     }
   }
 
@@ -1254,7 +1254,7 @@ test.decodeEnumTest = function(binary) {
     case 3: {
       var values = message.c || (message.c = []);
       if ((tag & 7) === 2) {
-        var outerLimit = $pushTemporaryLength(buffer);
+        var outerLimit = pushTemporaryLength(buffer);
         while (buffer.remaining() > 0) {
           values.push(test.decodeEnum[buffer.readVarint32()]);
         }
@@ -1266,7 +1266,7 @@ test.decodeEnumTest = function(binary) {
     }
 
     default:
-      $skipUnknownField(buffer, tag & 7);
+      skipUnknownField(buffer, tag & 7);
     }
   }
 
