@@ -1,16 +1,16 @@
-var child_process = require('child_process');
-var bytebuffer = require('bytebuffer');
-var protobufjs = require('protobufjs');
-var assert = require('assert');
-var index = require('./index');
-var fs = require('fs');
+const child_process = require('child_process');
+const bytebuffer = require('bytebuffer');
+const protobufjs = require('protobufjs');
+const assert = require('assert');
+const index = require('./index');
+const fs = require('fs');
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('optional', function() {
-  var schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+it('optional', () => {
+  const schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
 
-  var message = {
+  const message = {
     field_int32: -1,
     field_int64: new bytebuffer.Long(-1, -2),
     field_uint32: -1 >>> 0,
@@ -26,15 +26,15 @@ it('optional', function() {
     field_fixed32: -1 >>> 0,
     field_sfixed32: -1,
     field_float: 3.25,
-    field_nested: {x: 1.5},
+    field_nested: { x: 1.5 },
   };
 
-  var buffer = schema.encodeOptional(message);
-  var message2 = schema.decodeOptional(buffer);
+  const buffer = schema.encodeOptional(message);
+  const message2 = schema.decodeOptional(buffer);
   assert.deepEqual(message2, message);
 
-  var schema2 = protobufjs.loadProtoFile('./test.proto').build('test');
-  var message3 = schema2.Optional.decode(buffer);
+  const schema2 = protobufjs.loadProtoFile('./test.proto').build('test');
+  const message3 = schema2.Optional.decode(buffer);
 
   // Bypass bugs in protobuf.js
   message3.field_bytes = message3.field_bytes.toBuffer();
@@ -42,16 +42,16 @@ it('optional', function() {
 
   assert.deepEqual(message3, message);
 
-  var buffer2 = schema2.Optional.encode(message).toBuffer();
+  const buffer2 = schema2.Optional.encode(message).toBuffer();
   assert.deepEqual(buffer2, buffer);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('repeated unpacked', function() {
-  var schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+it('repeated unpacked', () => {
+  const schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
 
-  var message = {
+  const message = {
     field_int32: [-1, -2],
     field_int64: [new bytebuffer.Long(-1, -2), new bytebuffer.Long(-3, -4)],
     field_uint32: [-1 >>> 0, -2 >>> 0],
@@ -67,15 +67,15 @@ it('repeated unpacked', function() {
     field_fixed32: [-1 >>> 0, -2 >>> 0],
     field_sfixed32: [-1, -2],
     field_float: [3.25, -3.25],
-    field_nested: [{x: 1.5}, {}, {y: 0.5}],
+    field_nested: [{ x: 1.5 }, {}, { y: 0.5 }],
   };
 
-  var buffer = schema.encodeRepeatedUnpacked(message);
-  var message2 = schema.decodeRepeatedUnpacked(buffer);
+  const buffer = schema.encodeRepeatedUnpacked(message);
+  const message2 = schema.decodeRepeatedUnpacked(buffer);
   assert.deepEqual(message2, message);
 
-  var schema2 = protobufjs.loadProtoFile('./test.proto').build('test');
-  var message3 = schema2.RepeatedUnpacked.decode(buffer);
+  const schema2 = protobufjs.loadProtoFile('./test.proto').build('test');
+  const message3 = schema2.RepeatedUnpacked.decode(buffer);
 
   // Bypass bugs in protobuf.js
   message3.field_bytes[0] = message3.field_bytes[0].toBuffer();
@@ -88,16 +88,16 @@ it('repeated unpacked', function() {
 
   assert.deepEqual(message3, message);
 
-  var buffer2 = schema2.RepeatedUnpacked.encode(message).toBuffer();
+  const buffer2 = schema2.RepeatedUnpacked.encode(message).toBuffer();
   assert.deepEqual(buffer2, buffer);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('repeated packed', function() {
-  var schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+it('repeated packed', () => {
+  const schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
 
-  var message = {
+  const message = {
     field_int32: [-1, -2],
     field_int64: [new bytebuffer.Long(-1, -2), new bytebuffer.Long(-3, -4)],
     field_uint32: [-1 >>> 0, -2 >>> 0],
@@ -113,15 +113,15 @@ it('repeated packed', function() {
     field_fixed32: [-1 >>> 0, -2 >>> 0],
     field_sfixed32: [-1, -2],
     field_float: [3.25, -3.25],
-    field_nested: [{x: 1.5}, {}, {y: 0.5}],
+    field_nested: [{ x: 1.5 }, {}, { y: 0.5 }],
   };
 
-  var buffer = schema.encodeRepeatedPacked(message);
-  var message2 = schema.decodeRepeatedPacked(buffer);
+  const buffer = schema.encodeRepeatedPacked(message);
+  const message2 = schema.decodeRepeatedPacked(buffer);
   assert.deepEqual(message2, message);
 
-  var schema2 = protobufjs.loadProtoFile('./test.proto').build('test');
-  var message3 = schema2.RepeatedPacked.decode(buffer);
+  const schema2 = protobufjs.loadProtoFile('./test.proto').build('test');
+  const message3 = schema2.RepeatedPacked.decode(buffer);
 
   // Bypass bugs in protobuf.js
   message3.field_bytes[0] = message3.field_bytes[0].toBuffer();
@@ -134,26 +134,26 @@ it('repeated packed', function() {
 
   assert.deepEqual(message3, message);
 
-  var buffer2 = schema2.RepeatedPacked.encode(message).toBuffer();
+  const buffer2 = schema2.RepeatedPacked.encode(message).toBuffer();
   assert.deepEqual(buffer2, buffer);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('javascript', function() {
-  var js = fs.readFileSync('./test.proto.js', 'utf8');
-  var js2 = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).toJavaScript();
+it('javascript', () => {
+  const js = fs.readFileSync('./test.proto.js', 'utf8');
+  const js2 = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).toJavaScript();
   assert.strictEqual(js, js2);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('cli: generate js', function(done) {
-  fs.unlink('./temp.js', function() {
-    var js = fs.readFileSync('./test.proto.js', 'utf8');
-    child_process.spawn('node', ['./cli.js', './test.proto', '--js', './temp.js']).on('close', function() {
-      var js2 = fs.readFileSync('./temp.js', 'utf8');
-      fs.unlink('./temp.js', function() {
+it('cli: generate js', done => {
+  fs.unlink('./temp.js', () => {
+    const js = fs.readFileSync('./test.proto.js', 'utf8');
+    child_process.spawn('node', ['./cli.js', './test.proto', '--js', './temp.js']).on('close', () => {
+      const js2 = fs.readFileSync('./temp.js', 'utf8');
+      fs.unlink('./temp.js', () => {
         try {
           assert.strictEqual(js, js2);
           done();
@@ -167,25 +167,25 @@ it('cli: generate js', function(done) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('cli: encode', function(done) {
-  var schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+it('cli: encode', done => {
+  const schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
 
-  var message = {
+  const message = {
     x: 1.5,
     y: -2.5,
   };
 
-  var cli = child_process.spawn('node', ['./cli.js', './test.proto', '--encode', 'Nested']);
-  var chunks = [];
+  const cli = child_process.spawn('node', ['./cli.js', './test.proto', '--encode', 'Nested']);
+  const chunks = [];
 
   cli.stdin.write(JSON.stringify(message));
   cli.stdin.end();
 
-  cli.stdout.on('data', function(chunk) {
+  cli.stdout.on('data', chunk => {
     chunks.push(chunk);
   });
 
-  cli.on('close', function() {
+  cli.on('close', () => {
     try {
       assert.deepStrictEqual(Buffer.concat(chunks), schema.encodeNested(message));
       done();
@@ -197,25 +197,25 @@ it('cli: encode', function(done) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('cli: decode', function(done) {
-  var schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+it('cli: decode', done => {
+  const schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
 
-  var message = {
+  const message = {
     x: 1.5,
     y: -2.5,
   };
 
-  var cli = child_process.spawn('node', ['./cli.js', './test.proto', '--decode', 'Nested']);
-  var chunks = [];
+  const cli = child_process.spawn('node', ['./cli.js', './test.proto', '--decode', 'Nested']);
+  const chunks = [];
 
   cli.stdin.write(schema.encodeNested(message));
   cli.stdin.end();
 
-  cli.stdout.on('data', function(chunk) {
+  cli.stdout.on('data', chunk => {
     chunks.push(chunk);
   });
 
-  cli.on('close', function() {
+  cli.on('close', () => {
     try {
       assert.strictEqual(Buffer.concat(chunks).toString(), JSON.stringify(message, null, 2) + '\n');
       done();
