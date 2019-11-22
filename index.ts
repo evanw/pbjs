@@ -4,7 +4,11 @@ import * as js from './js';
 
 export interface ParsedSchema {
   compile(): any;
-  toJavaScript(): string;
+  toJavaScript(options?: Options): string;
+}
+
+export interface Options {
+  es6?: boolean;
 }
 
 export function parseSchema(contents: string): ParsedSchema {
@@ -17,8 +21,8 @@ export function parseSchema(contents: string): ParsedSchema {
       return result;
     },
 
-    toJavaScript(): any {
-      return js.generate(schema);
+    toJavaScript({ es6 }: Options = {}): string {
+      return js.generate(schema, { es6 });
     },
   };
 };

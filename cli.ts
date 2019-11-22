@@ -8,6 +8,7 @@ commander
   .version(JSON.parse(fs.readFileSync(__dirname + '/package.json', 'utf8')).version)
   .arguments('<schema_path>')
   .option('--js <js_path>', 'Generate JavaScript code')
+  .option('--es6', 'Generate ES6 JavaScript code')
   .option('--decode <msg_type>', 'Decode standard input to JSON')
   .option('--encode <msg_type>', 'Encode standard input to JSON')
   .parse(process.argv);
@@ -19,10 +20,11 @@ if (!process.argv.slice(2).length) {
 
 const contents = fs.readFileSync(commander.args[0], 'utf8');
 const schema = parseSchema(contents);
+const es6 = !!commander.es6;
 
 // Generate JavaScript code
 if (commander.js) {
-  const js = schema.toJavaScript();
+  const js = schema.toJavaScript({ es6 });
   fs.writeFileSync(commander.js, js);
 }
 

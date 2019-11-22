@@ -22,6 +22,12 @@ For example, it's possible to distinguish between a missing list and a list that
   The generated code depends only on [bytebuffer.js](https://github.com/dcodeIO/bytebuffer.js).
   See [test.proto.js](https://github.com/evanw/pbjs/blob/master/test.proto.js) for an example of the generated code.
 
+* Generate ES6:
+
+  ```
+  pbjs wire-format.proto --js wire-format.js --es6
+  ```
+
 * Convert to JSON:
 
   ```

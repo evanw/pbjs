@@ -4,8 +4,14 @@ function quote(value: any): string {
   return JSON.stringify(value, null, 2).replace(/\n/g, '\n  ');
 }
 
-export function generate(schema: Schema): string {
+export interface Options {
+  es6?: boolean;
+}
+
+export function generate(schema: Schema, options?: Options): string {
+  options = options || {};
   let pkg = schema.package;
+  const es6 = !!options.es6;
   const enums: { [key: string]: boolean } = {};
   const lines: string[] = [];
 
@@ -30,44 +36,59 @@ export function generate(schema: Schema): string {
   const TYPE_SIZE_N = 2;
   const TYPE_SIZE_4 = 5;
 
-  if (pkg) {
-    lines.push('var ' + pkg + ' = ' + pkg + ' || exports || {}, exports;');
-  } else {
-    pkg = 'exports';
-    lines.push('var exports = exports || {};');
+  if (es6) {
+    lines.push('import * as ByteBuffer from "bytebuffer";');
+    lines.push('');
   }
 
-  lines.push('var ByteBuffer = ByteBuffer || require("bytebuffer");');
-  lines.push(pkg + '.Long = ByteBuffer.Long;');
-  lines.push('');
-  lines.push('(function(undefined) {');
+  else {
+    if (pkg) {
+      lines.push('var ' + pkg + ' = ' + pkg + ' || exports || {}, exports;');
+    } else {
+      pkg = 'exports';
+      lines.push('var exports = exports || {};');
+    }
+
+    lines.push('var ByteBuffer = ByteBuffer || require("bytebuffer");');
+    lines.push(pkg + '.Long = ByteBuffer.Long;');
+    lines.push('');
+    lines.push('(function(undefined) {');
+    lines.push('');
+  }
+
+  lines.push('function pushTemporaryLength(buffer) {');
+  lines.push('  var length = buffer.readVarint32();');
+  lines.push('  var limit = buffer.limit;');
+  lines.push('  buffer.limit = buffer.offset + length;');
+  lines.push('  return limit;');
+  lines.push('}');
   lines.push('');
 
-  lines.push('  function pushTemporaryLength(buffer) {');
-  lines.push('    var length = buffer.readVarint32();');
-  lines.push('    var limit = buffer.limit;');
-  lines.push('    buffer.limit = buffer.offset + length;');
-  lines.push('    return limit;');
+  lines.push('function skipUnknownField(buffer, type) {');
+  lines.push('  switch (type) {');
+  lines.push('    case ' + TYPE_VAR_INT + ': while (buffer.readByte() & 0x80) {} break;');
+  lines.push('    case ' + TYPE_SIZE_N + ': buffer.skip(buffer.readVarint32()); break;');
+  lines.push('    case ' + TYPE_SIZE_4 + ': buffer.skip(4); break;');
+  lines.push('    case ' + TYPE_SIZE_8 + ': buffer.skip(8); break;');
+  lines.push('    default: throw new Error("Unimplemented type: " + type);');
   lines.push('  }');
+  lines.push('}');
   lines.push('');
 
-  lines.push('  function skipUnknownField(buffer, type) {');
-  lines.push('    switch (type) {');
-  lines.push('      case ' + TYPE_VAR_INT + ': while (buffer.readByte() & 0x80) {} break;');
-  lines.push('      case ' + TYPE_SIZE_N + ': buffer.skip(buffer.readVarint32()); break;');
-  lines.push('      case ' + TYPE_SIZE_4 + ': buffer.skip(4); break;');
-  lines.push('      case ' + TYPE_SIZE_8 + ': buffer.skip(8); break;');
-  lines.push('      default: throw new Error("Unimplemented type: " + type);');
-  lines.push('    }');
-  lines.push('  }');
+  lines.push('function coerceLong(value) {');
+  lines.push('  if (!(value instanceof ByteBuffer.Long) && "low" in value && "high" in value)');
+  lines.push('    value = new ByteBuffer.Long(value.low, value.high, value.unsigned);');
+  lines.push('  return value;');
+  lines.push('}');
   lines.push('');
 
-  lines.push('  function coerceLong(value) {');
-  lines.push('    if (!(value instanceof ByteBuffer.Long) && "low" in value && "high" in value)');
-  lines.push('      value = new ByteBuffer.Long(value.low, value.high, value.unsigned);');
-  lines.push('    return value;');
-  lines.push('  }');
-  lines.push('');
+  function codeForEnumExport(name: string): string {
+    return es6 ? `export const ${name} = ` : `${pkg}.${name} = `;
+  }
+
+  function codeForFunctionExport(name: string): string {
+    return es6 ? `export function ${name}` : `${pkg}.${name} = function`;
+  }
 
   for (const def of schema.enums) {
     const prefix = def.name + '_';
@@ -87,10 +108,10 @@ export function generate(schema: Schema): string {
       decode[value.value] = key;
     }
 
-    lines.push('  ' + pkg + '[' + quote('encode' + def.name) + '] = ' + quote(encode) + ';');
+    lines.push(codeForEnumExport('encode' + def.name) + quote(encode) + ';');
     lines.push('');
 
-    lines.push('  ' + pkg + '[' + quote('decode' + def.name) + '] = ' + quote(decode) + ';');
+    lines.push(codeForEnumExport('decode' + def.name) + quote(decode) + ';');
     lines.push('');
 
     enums[def.name] = true;
@@ -107,8 +128,8 @@ export function generate(schema: Schema): string {
   }
 
   for (const def of schema.messages) {
-    lines.push('  ' + pkg + '[' + quote('encode' + def.name) + '] = function(message) {');
-    lines.push('    var buffer = new ByteBuffer(undefined, true);');
+    lines.push(codeForFunctionExport('encode' + def.name) + '(message) {');
+    lines.push('  var buffer = new ByteBuffer(undefined, true);');
     lines.push('');
 
     for (const field of def.fields) {
@@ -118,7 +139,7 @@ export function generate(schema: Schema): string {
       let write = null;
       let before = null;
 
-      lines.push('    // ' +
+      lines.push('  // ' +
         (field.repeated ? 'repeated ' : field.required ? 'required ' : 'optional ') +
         field.type + ' ' + field.name + ' = ' + field.tag + ';');
 
@@ -159,71 +180,71 @@ export function generate(schema: Schema): string {
       }
 
       if (field.repeated) {
-        lines.push('    var values = message[' + quote(field.name) + '];');
-        lines.push('    if (values !== undefined) {');
+        lines.push('  var values = message[' + quote(field.name) + '];');
+        lines.push('  if (values !== undefined) {');
 
         if (isPacked) {
-          lines.push('      var packed = new ByteBuffer(undefined, true)');
-          lines.push('      for (var i = 0; i < values.length; i++) {');
-          lines.push('        var value = values[i];');
-          if (before) lines.push('        ' + before + ';');
-          lines.push('        ' + write + ';');
-          lines.push('      }');
-          lines.push('      buffer.writeVarint32(' + ((field.tag << 3) | TYPE_SIZE_N) + ');');
-          lines.push('      buffer.writeVarint32(packed.flip().limit);');
-          lines.push('      buffer.append(packed);');
+          lines.push('    var packed = new ByteBuffer(undefined, true)');
+          lines.push('    for (var i = 0; i < values.length; i++) {');
+          lines.push('      var value = values[i];');
+          if (before) lines.push('      ' + before + ';');
+          lines.push('      ' + write + ';');
+          lines.push('    }');
+          lines.push('    buffer.writeVarint32(' + ((field.tag << 3) | TYPE_SIZE_N) + ');');
+          lines.push('    buffer.writeVarint32(packed.flip().limit);');
+          lines.push('    buffer.append(packed);');
         }
 
         else {
-          lines.push('      for (var i = 0; i < values.length; i++) {');
-          lines.push('        var value = values[i];');
-          if (before) lines.push('        ' + before + ';');
-          lines.push('        buffer.writeVarint32(' + ((field.tag << 3) | type) + ');');
-          lines.push('        ' + write + ';');
-          lines.push('      }');
+          lines.push('    for (var i = 0; i < values.length; i++) {');
+          lines.push('      var value = values[i];');
+          if (before) lines.push('      ' + before + ';');
+          lines.push('      buffer.writeVarint32(' + ((field.tag << 3) | type) + ');');
+          lines.push('      ' + write + ';');
+          lines.push('    }');
         }
 
-        lines.push('    }');
+        lines.push('  }');
         lines.push('');
       }
 
       else {
-        lines.push('    var value = message[' + quote(field.name) + '];');
-        lines.push('    if (value !== undefined) {');
-        lines.push('      buffer.writeVarint32(' + ((field.tag << 3) | type) + ');');
-        if (before) lines.push('      ' + before + ';');
-        lines.push('      ' + write + ';');
-        lines.push('    }');
+        lines.push('  var value = message[' + quote(field.name) + '];');
+        lines.push('  if (value !== undefined) {');
+        lines.push('    buffer.writeVarint32(' + ((field.tag << 3) | type) + ');');
+        if (before) lines.push('    ' + before + ';');
+        lines.push('    ' + write + ';');
+        lines.push('  }');
         lines.push('');
       }
     }
 
-    lines.push('    return buffer.flip().toBuffer();');
-    lines.push('  };');
+    lines.push('  return buffer.flip().toBuffer();');
+    lines.push(es6 ? '}' : '};');
     lines.push('');
 
-    lines.push('  ' + pkg + '[' + quote('decode' + def.name) + '] = function(buffer) {');
-    lines.push('    var message = {};');
+    lines.push(codeForFunctionExport('decode' + def.name) + '(buffer) {');
+    lines.push('  var message = {};');
     lines.push('');
-    lines.push('    if (!(buffer instanceof ByteBuffer))');
-    lines.push('      buffer = new ByteBuffer.fromBinary(buffer, true);');
+    lines.push('  if (!(buffer instanceof ByteBuffer))');
+    lines.push('    buffer = new ByteBuffer.fromBinary(buffer, true);');
     lines.push('');
-    lines.push('    end_of_message: while (buffer.remaining() > 0) {');
-    lines.push('      var tag = buffer.readVarint32();');
+    lines.push('  end_of_message: while (buffer.remaining() > 0) {');
+    lines.push('    var tag = buffer.readVarint32();');
     lines.push('');
-    lines.push('      switch (tag >>> 3) {');
-    lines.push('      case 0:');
-    lines.push('        break end_of_message;');
+    lines.push('    switch (tag >>> 3) {');
+    lines.push('    case 0:');
+    lines.push('      break end_of_message;');
     lines.push('');
 
     for (const field of def.fields) {
       let read = null;
       let after = null;
 
-      lines.push('      // ' +
+      lines.push('    // ' +
         (field.repeated ? 'repeated ' : field.required ? 'required ' : 'optional ') +
         field.type + ' ' + field.name + ' = ' + field.tag + ';');
-      lines.push('      case ' + field.tag + ':');
+      lines.push('    case ' + field.tag + ':');
 
       switch (field.type) {
         case 'bool': read = '!!buffer.readByte()'; break;
@@ -246,7 +267,7 @@ export function generate(schema: Schema): string {
           if (field.type in enums) {
             read = pkg + '[' + quote('decode' + field.type) + '][buffer.readVarint32()]';
           } else {
-            lines.push('        var limit = pushTemporaryLength(buffer);');
+            lines.push('      var limit = pushTemporaryLength(buffer);');
             read = pkg + '[' + quote('decode' + field.type) + '](buffer)';
             after = 'buffer.limit = limit';
           }
@@ -255,59 +276,61 @@ export function generate(schema: Schema): string {
       }
 
       if (field.repeated) {
-        lines.push('        var values = message[' + quote(field.name) + '] || (message[' + quote(field.name) + '] = []);');
+        lines.push('      var values = message[' + quote(field.name) + '] || (message[' + quote(field.name) + '] = []);');
 
         // Support both packed and unpacked encodings for primitive types
         if (field.type in packableTypes) {
-          lines.push('        if ((tag & 7) === ' + TYPE_SIZE_N + ') {');
-          lines.push('          var outerLimit = pushTemporaryLength(buffer);');
-          lines.push('          while (buffer.remaining() > 0) {');
-          lines.push('            values.push(' + read + ');');
-          if (after) lines.push('            ' + after + ';');
-          lines.push('          }');
-          lines.push('          buffer.limit = outerLimit;');
-          lines.push('        } else {');
+          lines.push('      if ((tag & 7) === ' + TYPE_SIZE_N + ') {');
+          lines.push('        var outerLimit = pushTemporaryLength(buffer);');
+          lines.push('        while (buffer.remaining() > 0) {');
           lines.push('          values.push(' + read + ');');
           if (after) lines.push('          ' + after + ';');
           lines.push('        }');
+          lines.push('        buffer.limit = outerLimit;');
+          lines.push('      } else {');
+          lines.push('        values.push(' + read + ');');
+          if (after) lines.push('        ' + after + ';');
+          lines.push('      }');
         }
 
         else {
-          lines.push('        values.push(' + read + ');');
-          if (after) lines.push('        ' + after + ';');
+          lines.push('      values.push(' + read + ');');
+          if (after) lines.push('      ' + after + ';');
         }
       }
 
       else {
-        lines.push('        message[' + quote(field.name) + '] = ' + read + ';');
-        if (after) lines.push('        ' + after + ';');
+        lines.push('      message[' + quote(field.name) + '] = ' + read + ';');
+        if (after) lines.push('      ' + after + ';');
       }
 
-      lines.push('        break;');
+      lines.push('      break;');
       lines.push('');
     }
 
-    lines.push('      default:');
-    lines.push('        skipUnknownField(buffer, tag & 7);');
-    lines.push('      }');
+    lines.push('    default:');
+    lines.push('      skipUnknownField(buffer, tag & 7);');
     lines.push('    }');
+    lines.push('  }');
     lines.push('');
 
     for (const field of def.fields) {
       if (field.required) {
-        lines.push('    if (message[' + quote(field.name) + '] === undefined)');
-        lines.push('      throw new Error(' + quote('Missing required field: ' + field.name) + ');');
+        lines.push('  if (message[' + quote(field.name) + '] === undefined)');
+        lines.push('    throw new Error(' + quote('Missing required field: ' + field.name) + ');');
         lines.push('');
       }
     }
 
-    lines.push('    return message;');
-    lines.push('  };');
+    lines.push('  return message;');
+    lines.push(es6 ? '}' : '};');
     lines.push('');
   }
 
-  lines.push('})();');
-  lines.push('');
+  if (!es6) {
+    lines.push('})();');
+    lines.push('');
+  }
 
   return lines.join('\n');
 }
