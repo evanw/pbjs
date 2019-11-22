@@ -7,15 +7,21 @@
     "pbjs": "./cli.js"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha"
+    "test": "tsc && mocha",
+    "build": "tsc",
+    "prepublish": "tsc"
   },
   "dependencies": {
     "bytebuffer": "5.0.1",
-    "commander": "2.9.0",
+    "commander": "4.0.1",
     "protocol-buffers-schema": "3.1.0"
   },
   "devDependencies": {
+    "@types/bytebuffer": "5.0.40",
+    "@types/mocha": "5.2.7",
+    "long": "4.0.0",
     "mocha": "6.2.2",
-    "protobufjs": "6.8.8"
+    "protobufjs": "6.8.8",
+    "typescript": "3.7.2"
   }
 }

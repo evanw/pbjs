@@ -39,20 +39,19 @@ The generated JavaScript code
 ## API Example
 
 ```JavaScript
-var pbjs = require('pbjs');
-var fs = require('fs');
+const pbjs = require('pbjs');
 
-var schema = pbjs.parseSchema([
-  'message Demo {',
-  '  optional int32 x = 1;',
-  '  optional float y = 2;',
-  '}',
-].join('\n')).compile();
+const schema = pbjs.parseSchema(`
+  message Demo {
+    optional int32 x = 1;
+    optional float y = 2;
+  }
+`).compile();
 
-var buffer = schema.encodeDemo({x: 1, y: 2});
+const buffer = schema.encodeDemo({x: 1, y: 2});
 console.log(buffer);
 
-var message = schema.decodeDemo(buffer);
+const message = schema.decodeDemo(buffer);
 console.log(message);
 ```
 

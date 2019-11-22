@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-const commander = require('commander');
-const index = require('./index');
-const fs = require('fs');
+import * as commander from 'commander';
+import * as fs from 'fs';
+import { parseSchema } from './index';
 
 commander
-  .version(JSON.parse(fs.readFileSync(__dirname + '/package.json')).version)
+  .version(JSON.parse(fs.readFileSync(__dirname + '/package.json', 'utf8')).version)
   .arguments('<schema_path>')
   .option('--js <js_path>', 'Generate JavaScript code')
   .option('--decode <msg_type>', 'Decode standard input to JSON')
@@ -18,7 +18,7 @@ if (!process.argv.slice(2).length) {
 }
 
 const contents = fs.readFileSync(commander.args[0], 'utf8');
-const schema = index.parseSchema(contents);
+const schema = parseSchema(contents);
 
 // Generate JavaScript code
 if (commander.js) {
@@ -28,7 +28,7 @@ if (commander.js) {
 
 // Decode standard input to JSON
 else if (commander.decode) {
-  const chunks = [];
+  const chunks: Buffer[] = [];
   process.stdin.on('data', chunk => {
     chunks.push(chunk);
   });
@@ -40,7 +40,7 @@ else if (commander.decode) {
 
 // Encode standard input to JSON
 else if (commander.encode) {
-  const chunks = [];
+  const chunks: Buffer[] = [];
   process.stdin.on('data', chunk => {
     chunks.push(chunk);
   });

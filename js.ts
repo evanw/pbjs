@@ -1,13 +1,15 @@
-function quote(text) {
-  return JSON.stringify(text, null, 2).replace(/\n/g, '\n  ');
+import { Schema } from "protocol-buffers-schema";
+
+function quote(value: any): string {
+  return JSON.stringify(value, null, 2).replace(/\n/g, '\n  ');
 }
 
-exports.generate = schema => {
-  const package = schema.package;
-  const enums = {};
-  const lines = [];
+export function generate(schema: Schema): string {
+  let pkg = schema.package;
+  const enums: { [key: string]: boolean } = {};
+  const lines: string[] = [];
 
-  const packableTypes = {
+  const packableTypes: { [type: string]: boolean } = {
     'bool': true,
     'double': true,
     'fixed32': true,
@@ -28,15 +30,15 @@ exports.generate = schema => {
   const TYPE_SIZE_N = 2;
   const TYPE_SIZE_4 = 5;
 
-  if (package) {
-    lines.push('var ' + package + ' = ' + package + ' || exports || {}, exports;');
+  if (pkg) {
+    lines.push('var ' + pkg + ' = ' + pkg + ' || exports || {}, exports;');
   } else {
-    package = 'exports';
+    pkg = 'exports';
     lines.push('var exports = exports || {};');
   }
 
   lines.push('var ByteBuffer = ByteBuffer || require("bytebuffer");');
-  lines.push(package + '.Long = ByteBuffer.Long;');
+  lines.push(pkg + '.Long = ByteBuffer.Long;');
   lines.push('');
   lines.push('(function(undefined) {');
   lines.push('');
@@ -69,10 +71,10 @@ exports.generate = schema => {
 
   for (const def of schema.enums) {
     const prefix = def.name + '_';
-    const encode = {};
-    const decode = {};
+    const encode: { [key: string]: string } = {};
+    const decode: { [key: string]: string } = {};
 
-    for (const key in def.values) {
+    for (let key in def.values) {
       const value = def.values[key];
 
       // Protocol buffers made the stupid decision to use C-style enum scoping
@@ -85,10 +87,10 @@ exports.generate = schema => {
       decode[value.value] = key;
     }
 
-    lines.push('  ' + package + '[' + quote('encode' + def.name) + '] = ' + quote(encode) + ';');
+    lines.push('  ' + pkg + '[' + quote('encode' + def.name) + '] = ' + quote(encode) + ';');
     lines.push('');
 
-    lines.push('  ' + package + '[' + quote('decode' + def.name) + '] = ' + quote(decode) + ';');
+    lines.push('  ' + pkg + '[' + quote('decode' + def.name) + '] = ' + quote(decode) + ';');
     lines.push('');
 
     enums[def.name] = true;
@@ -105,7 +107,7 @@ exports.generate = schema => {
   }
 
   for (const def of schema.messages) {
-    lines.push('  ' + package + '[' + quote('encode' + def.name) + '] = function(message) {');
+    lines.push('  ' + pkg + '[' + quote('encode' + def.name) + '] = function(message) {');
     lines.push('    var buffer = new ByteBuffer(undefined, true);');
     lines.push('');
 
@@ -146,10 +148,10 @@ exports.generate = schema => {
         default: {
           if (field.type in enums) {
             type = TYPE_VAR_INT;
-            write = buffer + '.writeVarint32(' + package + '[' + quote('encode' + field.type) + '][value])';
+            write = buffer + '.writeVarint32(' + pkg + '[' + quote('encode' + field.type) + '][value])';
           } else {
             type = TYPE_SIZE_N;
-            before = 'var nested = ' + package + '[' + quote('encode' + field.type) + '](value)';
+            before = 'var nested = ' + pkg + '[' + quote('encode' + field.type) + '](value)';
             write = buffer + '.writeVarint32(nested.byteLength), ' + buffer + '.append(nested)';
           }
           break;
@@ -200,7 +202,7 @@ exports.generate = schema => {
     lines.push('  };');
     lines.push('');
 
-    lines.push('  ' + package + '[' + quote('decode' + def.name) + '] = function(buffer) {');
+    lines.push('  ' + pkg + '[' + quote('decode' + def.name) + '] = function(buffer) {');
     lines.push('    var message = {};');
     lines.push('');
     lines.push('    if (!(buffer instanceof ByteBuffer))');
@@ -242,10 +244,10 @@ exports.generate = schema => {
 
         default: {
           if (field.type in enums) {
-            read = package + '[' + quote('decode' + field.type) + '][buffer.readVarint32()]';
+            read = pkg + '[' + quote('decode' + field.type) + '][buffer.readVarint32()]';
           } else {
             lines.push('        var limit = pushTemporaryLength(buffer);');
-            read = package + '[' + quote('decode' + field.type) + '](buffer)';
+            read = pkg + '[' + quote('decode' + field.type) + '](buffer)';
             after = 'buffer.limit = limit';
           }
           break;
@@ -308,4 +310,4 @@ exports.generate = schema => {
   lines.push('');
 
   return lines.join('\n');
-};
+}
