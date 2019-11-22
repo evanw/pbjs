@@ -5,6 +5,7 @@ import * as js from './js';
 export interface ParsedSchema {
   compile(): any;
   toJavaScript(options?: Options): string;
+  toTypeScript(): string;
 }
 
 export interface Options {
@@ -23,6 +24,10 @@ export function parseSchema(contents: string): ParsedSchema {
 
     toJavaScript({ es6 }: Options = {}): string {
       return js.generate(schema, { es6 });
+    },
+
+    toTypeScript(): string {
+      return js.generate(schema, { typescript: true });
     },
   };
 };

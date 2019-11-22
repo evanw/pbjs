@@ -1,5 +1,10 @@
 package test;
 
+enum Enum {
+  A = 0;
+  B = 1;
+}
+
 message Nested {
   optional float x = 1;
   optional float y = 2;
@@ -60,4 +65,11 @@ message RepeatedPacked {
   repeated sfixed32 field_sfixed32 = 14 [packed = true];
   repeated float field_float = 15 [packed = true];
   repeated Nested field_nested = 16 [packed = false];
+  repeated Nested field_nested2 = 17 [packed = false];
+}
+
+message EnumTest {
+  optional Enum a = 1;
+  required Enum b = 2;
+  repeated Enum c = 3;
 }

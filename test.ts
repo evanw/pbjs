@@ -127,10 +127,34 @@ it('repeated packed', async () => {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+it('enum test', async () => {
+  const schema = parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+
+  const message = {
+    a: 'B',
+    b: 'A',
+    c: ['A', 'B'],
+  };
+
+  const buffer = schema.encodeEnumTest(message);
+  const message2 = schema.decodeEnumTest(buffer);
+  assert.deepEqual(message2, message);
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
 it('javascript', () => {
   const js = fs.readFileSync('./test.proto.js', 'utf8');
   const js2 = parseSchema(fs.readFileSync('./test.proto', 'utf8')).toJavaScript();
   assert.strictEqual(js, js2);
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+it('typescript', () => {
+  const ts = fs.readFileSync('./proto.test.ts', 'utf8');
+  const ts2 = parseSchema(fs.readFileSync('./test.proto', 'utf8')).toTypeScript();
+  assert.strictEqual(ts, ts2);
 });
 
 ////////////////////////////////////////////////////////////////////////////////

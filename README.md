@@ -28,6 +28,12 @@ For example, it's possible to distinguish between a missing list and a list that
   pbjs wire-format.proto --js wire-format.js --es6
   ```
 
+* Generate TypeScript:
+
+  ```
+  pbjs wire-format.proto --ts wire-format.ts
+  ```
+
 * Convert to JSON:
 
   ```

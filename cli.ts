@@ -8,6 +8,7 @@ commander
   .version(JSON.parse(fs.readFileSync(__dirname + '/package.json', 'utf8')).version)
   .arguments('<schema_path>')
   .option('--js <js_path>', 'Generate JavaScript code')
+  .option('--ts <js_path>', 'Generate TypeScript code')
   .option('--es6', 'Generate ES6 JavaScript code')
   .option('--decode <msg_type>', 'Decode standard input to JSON')
   .option('--encode <msg_type>', 'Encode standard input to JSON')
@@ -28,8 +29,14 @@ if (commander.js) {
   fs.writeFileSync(commander.js, js);
 }
 
+// Generate TypeScript code
+if (commander.ts) {
+  const ts = schema.toTypeScript();
+  fs.writeFileSync(commander.ts, ts);
+}
+
 // Decode standard input to JSON
-else if (commander.decode) {
+if (commander.decode) {
   const chunks: Buffer[] = [];
   process.stdin.on('data', chunk => {
     chunks.push(chunk);
@@ -52,7 +59,7 @@ else if (commander.encode) {
   process.stdin.resume();
 }
 
-else {
+if (!commander.js && !commander.ts && !commander.decode && !commander.encode) {
   commander.outputHelp();
   process.exit(1);
 }
