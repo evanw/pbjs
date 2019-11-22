@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-var commander = require('commander');
-var index = require('./index');
-var fs = require('fs');
+const commander = require('commander');
+const index = require('./index');
+const fs = require('fs');
 
 commander
   .version(JSON.parse(fs.readFileSync(__dirname + '/package.json')).version)
@@ -17,22 +17,22 @@ if (!process.argv.slice(2).length) {
   process.exit(1);
 }
 
-var contents = fs.readFileSync(commander.args[0], 'utf8');
-var schema = index.parseSchema(contents);
+const contents = fs.readFileSync(commander.args[0], 'utf8');
+const schema = index.parseSchema(contents);
 
 // Generate JavaScript code
 if (commander.js) {
-  var js = schema.toJavaScript();
+  const js = schema.toJavaScript();
   fs.writeFileSync(commander.js, js);
 }
 
 // Decode standard input to JSON
 else if (commander.decode) {
-  var chunks = [];
-  process.stdin.on('data', function(chunk) {
+  const chunks = [];
+  process.stdin.on('data', chunk => {
     chunks.push(chunk);
   });
-  process.stdin.on('end', function() {
+  process.stdin.on('end', () => {
     console.log(JSON.stringify(schema.compile()['decode' + commander.decode](Buffer.concat(chunks)), null, 2));
   });
   process.stdin.resume();
@@ -40,11 +40,11 @@ else if (commander.decode) {
 
 // Encode standard input to JSON
 else if (commander.encode) {
-  var chunks = [];
-  process.stdin.on('data', function(chunk) {
+  const chunks = [];
+  process.stdin.on('data', chunk => {
     chunks.push(chunk);
   });
-  process.stdin.on('end', function() {
+  process.stdin.on('end', () => {
     process.stdout.write(schema.compile()['encode' + commander.encode](JSON.parse(chunks.join(''))));
   });
   process.stdin.resume();

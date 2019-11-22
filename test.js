@@ -135,26 +135,22 @@ it('javascript', () => {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('cli: generate js', done => {
-  fs.unlink('./temp.js', () => {
-    const js = fs.readFileSync('./test.proto.js', 'utf8');
-    child_process.spawn('node', ['./cli.js', './test.proto', '--js', './temp.js']).on('close', () => {
-      const js2 = fs.readFileSync('./temp.js', 'utf8');
-      fs.unlink('./temp.js', () => {
-        try {
-          assert.strictEqual(js, js2);
-          done();
-        } catch (e) {
-          done(e);
-        }
-      });
-    });
-  });
+it('cli: generate js', async () => {
+  try {
+    fs.unlinkSync('./temp.js');
+  } catch (e) {
+  }
+  const js = fs.readFileSync('./test.proto.js', 'utf8');
+  const cli = child_process.spawn('node', ['./cli.js', './test.proto', '--js', './temp.js']);
+  await new Promise(resolve => cli.on('close', resolve));
+  const js2 = fs.readFileSync('./temp.js', 'utf8');
+  fs.unlinkSync('./temp.js');
+  assert.strictEqual(js, js2);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('cli: encode', done => {
+it('cli: encode', async () => {
   const schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
 
   const message = {
@@ -171,20 +167,14 @@ it('cli: encode', done => {
   cli.stdout.on('data', chunk => {
     chunks.push(chunk);
   });
+  await new Promise(resolve => cli.on('close', resolve));
 
-  cli.on('close', () => {
-    try {
-      assert.deepStrictEqual(Buffer.concat(chunks), schema.encodeNested(message));
-      done();
-    } catch (e) {
-      done(e);
-    }
-  });
+  assert.deepStrictEqual(Buffer.concat(chunks), schema.encodeNested(message));
 });
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('cli: decode', done => {
+it('cli: decode', async () => {
   const schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
 
   const message = {
@@ -201,13 +191,7 @@ it('cli: decode', done => {
   cli.stdout.on('data', chunk => {
     chunks.push(chunk);
   });
+  await new Promise(resolve => cli.on('close', resolve));
 
-  cli.on('close', () => {
-    try {
-      assert.strictEqual(Buffer.concat(chunks).toString(), JSON.stringify(message, null, 2) + '\n');
-      done();
-    } catch (e) {
-      done(e);
-    }
-  });
+  assert.strictEqual(Buffer.concat(chunks).toString(), JSON.stringify(message, null, 2) + '\n');
 });

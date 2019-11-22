@@ -2,12 +2,12 @@ function quote(text) {
   return JSON.stringify(text, null, 2).replace(/\n/g, '\n  ');
 }
 
-exports.generate = function(schema) {
-  var package = schema.package;
-  var enums = {};
-  var lines = [];
+exports.generate = schema => {
+  const package = schema.package;
+  const enums = {};
+  const lines = [];
 
-  var packableTypes = {
+  const packableTypes = {
     'bool': true,
     'double': true,
     'fixed32': true,
@@ -23,10 +23,10 @@ exports.generate = function(schema) {
     'uint64': true,
   };
 
-  var TYPE_VAR_INT = 0;
-  var TYPE_SIZE_8 = 1;
-  var TYPE_SIZE_N = 2;
-  var TYPE_SIZE_4 = 5;
+  const TYPE_VAR_INT = 0;
+  const TYPE_SIZE_8 = 1;
+  const TYPE_SIZE_N = 2;
+  const TYPE_SIZE_4 = 5;
 
   if (package) {
     lines.push('var ' + package + ' = ' + package + ' || exports || {}, exports;');
@@ -67,14 +67,13 @@ exports.generate = function(schema) {
   lines.push('  }');
   lines.push('');
 
-  for (var i = 0; i < schema.enums.length; i++) {
-    var def = schema.enums[i];
-    var prefix = def.name + '_';
-    var encode = {};
-    var decode = {};
+  for (const def of schema.enums) {
+    const prefix = def.name + '_';
+    const encode = {};
+    const decode = {};
 
-    Object.keys(def.values).forEach(function(key) {
-      var value = def.values[key];
+    for (const key in def.values) {
+      const value = def.values[key];
 
       // Protocol buffers made the stupid decision to use C-style enum scoping
       // rules. Attempt to fix this by stripping the "EnumType_" prefix if present.
@@ -84,7 +83,7 @@ exports.generate = function(schema) {
 
       encode[key] = value.value;
       decode[value.value] = key;
-    });
+    }
 
     lines.push('  ' + package + '[' + quote('encode' + def.name) + '] = ' + quote(encode) + ';');
     lines.push('');
@@ -97,30 +96,25 @@ exports.generate = function(schema) {
   }
 
   // Validate the "packed" option once
-  for (var i = 0; i < schema.messages.length; i++) {
-    var def = schema.messages[i];
-    for (var j = 0; j < def.fields.length; j++) {
-      var field = def.fields[j];
+  for (const def of schema.messages) {
+    for (const field of def.fields) {
       if (field.options.packed === 'true' && (!field.repeated || !(field.type in packableTypes))) {
         throw new Error(field.name + ': [packed = true] can only be specified for repeated primitive fields');
       }
     }
   }
 
-  for (var i = 0; i < schema.messages.length; i++) {
-    var def = schema.messages[i];
-
+  for (const def of schema.messages) {
     lines.push('  ' + package + '[' + quote('encode' + def.name) + '] = function(message) {');
     lines.push('    var buffer = new ByteBuffer(undefined, true);');
     lines.push('');
 
-    for (var j = 0; j < def.fields.length; j++) {
-      var field = def.fields[j];
-      var isPacked = field.repeated && field.options.packed !== 'false' && field.type in packableTypes;
-      var buffer = isPacked ? 'packed' : 'buffer';
-      var type = 0;
-      var write = null;
-      var before = null;
+    for (const field of def.fields) {
+      const isPacked = field.repeated && field.options.packed !== 'false' && field.type in packableTypes;
+      const buffer = isPacked ? 'packed' : 'buffer';
+      let type = 0;
+      let write = null;
+      let before = null;
 
       lines.push('    // ' +
         (field.repeated ? 'repeated ' : field.required ? 'required ' : 'optional ') +
@@ -220,11 +214,9 @@ exports.generate = function(schema) {
     lines.push('        break end_of_message;');
     lines.push('');
 
-    for (var j = 0; j < def.fields.length; j++) {
-      var field = def.fields[j];
-      var isPacked = field.repeated && field.options.packed !== 'false' && field.type in packableTypes;
-      var read = null;
-      var after = null;
+    for (const field of def.fields) {
+      let read = null;
+      let after = null;
 
       lines.push('      // ' +
         (field.repeated ? 'repeated ' : field.required ? 'required ' : 'optional ') +
@@ -299,9 +291,7 @@ exports.generate = function(schema) {
     lines.push('    }');
     lines.push('');
 
-    for (var j = 0; j < def.fields.length; j++) {
-      var field = def.fields[j];
-
+    for (const field of def.fields) {
       if (field.required) {
         lines.push('    if (message[' + quote(field.name) + '] === undefined)');
         lines.push('      throw new Error(' + quote('Missing required field: ' + field.name) + ');');
