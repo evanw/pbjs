@@ -1,6 +1,6 @@
 {
   "name": "pbjs",
-  "version": "0.0.6",
+  "version": "0.0.9",
   "description": "A minimal implementation of Google Protocol Buffers for JavaScript",
   "main": "./index.js",
   "bin": {
@@ -10,7 +10,7 @@
     "test": "tsc && mocha",
     "generate": "rm -f proto.test.ts && tsc && node cli test.proto --js test.proto.js --ts proto.test.ts",
     "build": "tsc",
-    "prepublish": "tsc"
+    "prepublishOnly": "tsc && chmod +x cli.js"
   },
   "dependencies": {
     "bytebuffer": "5.0.1",
