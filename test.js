@@ -7,7 +7,7 @@ const fs = require('fs');
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('optional', () => {
+it('optional', async () => {
   const schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
 
   const message = {
@@ -33,22 +33,21 @@ it('optional', () => {
   const message2 = schema.decodeOptional(buffer);
   assert.deepEqual(message2, message);
 
-  const schema2 = protobufjs.loadProtoFile('./test.proto').build('test');
-  const message3 = schema2.Optional.decode(buffer);
+  const root = new protobufjs.Root();
+  await root.load('./test.proto', { keepCase: true });
 
-  // Bypass bugs in protobuf.js
-  message3.field_bytes = message3.field_bytes.toBuffer();
-  delete message3.field_nested.y;
+  const Optional = root.lookupType('test.Optional');
+  const message3 = Optional.decode(buffer);
 
   assert.deepEqual(message3, message);
 
-  const buffer2 = schema2.Optional.encode(message).toBuffer();
+  const buffer2 = Optional.encode(message).finish();
   assert.deepEqual(buffer2, buffer);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('repeated unpacked', () => {
+it('repeated unpacked', async () => {
   const schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
 
   const message = {
@@ -74,27 +73,21 @@ it('repeated unpacked', () => {
   const message2 = schema.decodeRepeatedUnpacked(buffer);
   assert.deepEqual(message2, message);
 
-  const schema2 = protobufjs.loadProtoFile('./test.proto').build('test');
-  const message3 = schema2.RepeatedUnpacked.decode(buffer);
+  const root = new protobufjs.Root();
+  await root.load('./test.proto', { keepCase: true });
 
-  // Bypass bugs in protobuf.js
-  message3.field_bytes[0] = message3.field_bytes[0].toBuffer();
-  message3.field_bytes[1] = message3.field_bytes[1].toBuffer();
-  message3.field_bytes[2] = message3.field_bytes[2].toBuffer();
-  delete message3.field_nested[0].y;
-  delete message3.field_nested[1].x;
-  delete message3.field_nested[1].y;
-  delete message3.field_nested[2].x;
+  const RepeatedUnpacked = root.lookupType('test.RepeatedUnpacked');
+  const message3 = RepeatedUnpacked.decode(buffer);
 
   assert.deepEqual(message3, message);
 
-  const buffer2 = schema2.RepeatedUnpacked.encode(message).toBuffer();
+  const buffer2 = RepeatedUnpacked.encode(message).finish();
   assert.deepEqual(buffer2, buffer);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('repeated packed', () => {
+it('repeated packed', async () => {
   const schema = index.parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
 
   const message = {
@@ -120,21 +113,15 @@ it('repeated packed', () => {
   const message2 = schema.decodeRepeatedPacked(buffer);
   assert.deepEqual(message2, message);
 
-  const schema2 = protobufjs.loadProtoFile('./test.proto').build('test');
-  const message3 = schema2.RepeatedPacked.decode(buffer);
+  const root = new protobufjs.Root();
+  await root.load('./test.proto', { keepCase: true });
 
-  // Bypass bugs in protobuf.js
-  message3.field_bytes[0] = message3.field_bytes[0].toBuffer();
-  message3.field_bytes[1] = message3.field_bytes[1].toBuffer();
-  message3.field_bytes[2] = message3.field_bytes[2].toBuffer();
-  delete message3.field_nested[0].y;
-  delete message3.field_nested[1].x;
-  delete message3.field_nested[1].y;
-  delete message3.field_nested[2].x;
+  const RepeatedPacked = root.lookupType('test.RepeatedPacked');
+  const message3 = RepeatedPacked.decode(buffer);
 
   assert.deepEqual(message3, message);
 
-  const buffer2 = schema2.RepeatedPacked.encode(message).toBuffer();
+  const buffer2 = RepeatedPacked.encode(message).finish();
   assert.deepEqual(buffer2, buffer);
 });
 
