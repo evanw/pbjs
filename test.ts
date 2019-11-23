@@ -22,7 +22,7 @@ it('optional', async () => {
     field_sfixed64: new Long(-87654321, -12345678),
     field_double: 2.5,
     field_string: 'testing 🙉🙈🙊',
-    field_bytes: Buffer.from([1, 2, 3, 4, 5]),
+    field_bytes: new Uint8Array([1, 2, 3, 4, 5]),
     field_fixed32: -1 >>> 0,
     field_sfixed32: -1,
     field_float: 3.25,
@@ -62,7 +62,7 @@ it('repeated unpacked', async () => {
     field_sfixed64: [new Long(-87654321, -12345678), new Long(-1234, -8765)],
     field_double: [2.5, -2.5],
     field_string: ['testing', '🙉🙈🙊'],
-    field_bytes: [Buffer.from([1, 2, 3, 4, 5]), Buffer.from([]), Buffer.from([5, 4, 3])],
+    field_bytes: [new Uint8Array([1, 2, 3, 4, 5]), new Uint8Array([]), new Uint8Array([5, 4, 3])],
     field_fixed32: [-1 >>> 0, -2 >>> 0],
     field_sfixed32: [-1, -2],
     field_float: [3.25, -3.25],
@@ -102,7 +102,7 @@ it('repeated packed', async () => {
     field_sfixed64: [new Long(-87654321, -12345678), new Long(-1234, -8765)],
     field_double: [2.5, -2.5],
     field_string: ['testing', '🙉🙈🙊'],
-    field_bytes: [Buffer.from([1, 2, 3, 4, 5]), Buffer.from([]), Buffer.from([5, 4, 3])],
+    field_bytes: [new Uint8Array([1, 2, 3, 4, 5]), new Uint8Array([]), new Uint8Array([5, 4, 3])],
     field_fixed32: [-1 >>> 0, -2 >>> 0],
     field_sfixed32: [-1, -2],
     field_float: [3.25, -3.25],
@@ -143,33 +143,71 @@ it('enum test', async () => {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('javascript', () => {
-  const js = fs.readFileSync('./test.proto.js', 'utf8');
+it('javascript (es5)', () => {
+  const js = fs.readFileSync('./test.proto.es5.js', 'utf8');
   const js2 = parseSchema(fs.readFileSync('./test.proto', 'utf8')).toJavaScript();
   assert.strictEqual(js, js2);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
 
+it('javascript (es6)', () => {
+  const js = fs.readFileSync('./test.proto.es6.js', 'utf8');
+  const js2 = parseSchema(fs.readFileSync('./test.proto', 'utf8')).toJavaScript({ es6: true });
+  assert.strictEqual(js, js2);
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
 it('typescript', () => {
-  const ts = fs.readFileSync('./proto.test.ts', 'utf8');
+  const ts = fs.readFileSync('./test.proto.ts', 'utf8');
   const ts2 = parseSchema(fs.readFileSync('./test.proto', 'utf8')).toTypeScript();
   assert.strictEqual(ts, ts2);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
 
-it('cli: generate js', async () => {
+it('cli: generate javascript (es5)', async () => {
   try {
     fs.unlinkSync('./temp.js');
   } catch (e) {
   }
-  const js = fs.readFileSync('./test.proto.js', 'utf8');
-  const cli = child_process.spawn('node', ['./cli.js', './test.proto', '--js', './temp.js']);
+  const js = fs.readFileSync('./test.proto.es5.js', 'utf8');
+  const cli = child_process.spawn('node', ['./cli.js', './test.proto', '--es5', './temp.js']);
   await new Promise(resolve => cli.on('close', resolve));
   const js2 = fs.readFileSync('./temp.js', 'utf8');
   fs.unlinkSync('./temp.js');
   assert.strictEqual(js, js2);
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+it('cli: generate javascript (es6)', async () => {
+  try {
+    fs.unlinkSync('./temp.js');
+  } catch (e) {
+  }
+  const js = fs.readFileSync('./test.proto.es6.js', 'utf8');
+  const cli = child_process.spawn('node', ['./cli.js', './test.proto', '--es6', './temp.js']);
+  await new Promise(resolve => cli.on('close', resolve));
+  const js2 = fs.readFileSync('./temp.js', 'utf8');
+  fs.unlinkSync('./temp.js');
+  assert.strictEqual(js, js2);
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+it('cli: generate typescript', async () => {
+  try {
+    fs.unlinkSync('./temp.ts');
+  } catch (e) {
+  }
+  const ts = fs.readFileSync('./test.proto.ts', 'utf8');
+  const cli = child_process.spawn('node', ['./cli.js', './test.proto', '--ts', './temp.ts']);
+  await new Promise(resolve => cli.on('close', resolve));
+  const ts2 = fs.readFileSync('./temp.ts', 'utf8');
+  fs.unlinkSync('./temp.ts');
+  assert.strictEqual(ts, ts2);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -193,7 +231,7 @@ it('cli: encode', async () => {
   });
   await new Promise(resolve => cli.on('close', resolve));
 
-  assert.deepStrictEqual(Buffer.concat(chunks), schema.encodeNested(message));
+  assert.deepStrictEqual(new Uint8Array(Buffer.concat(chunks)), schema.encodeNested(message));
 });
 
 ////////////////////////////////////////////////////////////////////////////////

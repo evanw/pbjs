@@ -8,17 +8,15 @@
   },
   "scripts": {
     "test": "tsc && mocha",
-    "generate": "rm -f proto.test.ts && tsc && node cli test.proto --js test.proto.js --ts proto.test.ts",
+    "generate": "rm -f proto.test.ts && tsc && node cli test.proto --js test.proto.es5.js --ts test.proto.ts && node cli test.proto --js test.proto.es6.js --es6",
     "build": "tsc",
     "prepublishOnly": "tsc && chmod +x cli.js"
   },
   "dependencies": {
-    "bytebuffer": "5.0.1",
     "commander": "4.0.1",
     "protocol-buffers-schema": "3.1.0"
   },
   "devDependencies": {
-    "@types/bytebuffer": "5.0.40",
     "@types/mocha": "5.2.7",
     "long": "4.0.0",
     "mocha": "6.2.2",

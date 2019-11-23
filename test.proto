@@ -65,7 +65,6 @@ message RepeatedPacked {
   repeated sfixed32 field_sfixed32 = 14 [packed = true];
   repeated float field_float = 15 [packed = true];
   repeated Nested field_nested = 16 [packed = false];
-  repeated Nested field_nested2 = 17 [packed = false];
 }
 
 message EnumTest {

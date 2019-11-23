@@ -7,9 +7,9 @@ import { parseSchema } from './index';
 commander
   .version(JSON.parse(fs.readFileSync(__dirname + '/package.json', 'utf8')).version)
   .arguments('<schema_path>')
-  .option('--js <js_path>', 'Generate JavaScript code')
-  .option('--ts <js_path>', 'Generate TypeScript code')
-  .option('--es6', 'Generate ES6 JavaScript code')
+  .option('--es5 <js_path>', 'Generate ES5 JavaScript code')
+  .option('--es6 <js_path>', 'Generate ES6 JavaScript code')
+  .option('--ts <ts_path>', 'Generate TypeScript code')
   .option('--decode <msg_type>', 'Decode standard input to JSON')
   .option('--encode <msg_type>', 'Encode standard input to JSON')
   .parse(process.argv);
@@ -21,12 +21,17 @@ if (!process.argv.slice(2).length) {
 
 const contents = fs.readFileSync(commander.args[0], 'utf8');
 const schema = parseSchema(contents);
-const es6 = !!commander.es6;
 
-// Generate JavaScript code
-if (commander.js) {
-  const js = schema.toJavaScript({ es6 });
-  fs.writeFileSync(commander.js, js);
+// Generate ES5 JavaScript code
+if (commander.es5) {
+  const js = schema.toJavaScript({ es6: false });
+  fs.writeFileSync(commander.es5, js);
+}
+
+// Generate ES6 JavaScript code
+if (commander.es6) {
+  const js = schema.toJavaScript({ es6: true });
+  fs.writeFileSync(commander.es6, js);
 }
 
 // Generate TypeScript code
@@ -59,7 +64,13 @@ else if (commander.encode) {
   process.stdin.resume();
 }
 
-if (!commander.js && !commander.ts && !commander.decode && !commander.encode) {
+if (
+  !commander.es5 &&
+  !commander.es6 &&
+  !commander.ts &&
+  !commander.decode &&
+  !commander.encode
+) {
   commander.outputHelp();
   process.exit(1);
 }

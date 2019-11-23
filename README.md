@@ -1,6 +1,7 @@
 # Protocol Buffers for JavaScript
 
-This is a minimal implementation of [Google Protocol Buffers](https://developers.google.com/protocol-buffers/) for JavaScript.
+This is a minimal implementation of [Google Protocol Buffers](https://developers.google.com/protocol-buffers/) for JavaScript and TypeScript.
+It generates completely self-contained code without any dependencies.
 Install it using npm:
 
 ```
@@ -13,26 +14,29 @@ For example, it's possible to distinguish between a missing list and a list that
 
 ## Command-Line Examples
 
-* Generate JavaScript:
+* Generate ES5 JavaScript:
 
   ```
-  pbjs wire-format.proto --js wire-format.js
+  pbjs wire-format.proto --es5 wire-format.js
   ```
 
-  The generated code depends only on [bytebuffer.js](https://github.com/dcodeIO/bytebuffer.js).
-  See [test.proto.js](https://github.com/evanw/pbjs/blob/master/test.proto.js) for an example of the generated code.
+  See [test.proto.es5.js](https://github.com/evanw/pbjs/blob/master/test.proto.es5.js) for an example of the generated code.
 
-* Generate ES6:
+* Generate ES6 JavaScript:
 
   ```
-  pbjs wire-format.proto --js wire-format.js --es6
+  pbjs wire-format.proto --es6 wire-format.js
   ```
+
+  See [test.proto.es6.js](https://github.com/evanw/pbjs/blob/master/test.proto.es6.js) for an example of the generated code.
 
 * Generate TypeScript:
 
   ```
   pbjs wire-format.proto --ts wire-format.ts
   ```
+
+  See [test.proto.ts](https://github.com/evanw/pbjs/blob/master/test.proto.ts) for an example of the generated code.
 
 * Convert to JSON:
 
@@ -46,11 +50,9 @@ For example, it's possible to distinguish between a missing list and a list that
   pbjs wire-format.proto --encode MessageType < wire-format.json > wire-format.bin
   ```
 
-The generated JavaScript code
-
 ## API Example
 
-```JavaScript
+```js
 const pbjs = require('pbjs');
 
 const schema = pbjs.parseSchema(`
