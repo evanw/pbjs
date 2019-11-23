@@ -3,6 +3,7 @@
   "version": "0.0.9",
   "description": "A minimal implementation of Google Protocol Buffers for JavaScript",
   "main": "./index.js",
+  "types": "./index.d.ts",
   "bin": {
     "pbjs": "./cli.js"
   },

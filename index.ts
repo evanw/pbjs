@@ -1,15 +1,6 @@
 import * as parser from 'protocol-buffers-schema';
 import * as js from './js';
-
-export interface ParsedSchema {
-  compile(): any;
-  toJavaScript(options?: Options): string;
-  toTypeScript(): string;
-}
-
-export interface Options {
-  es6?: boolean;
-}
+import { ParsedSchema, JsOptions } from './index.d';
 
 export function parseSchema(contents: string): ParsedSchema {
   const schema = parser.parse(contents);
@@ -21,7 +12,7 @@ export function parseSchema(contents: string): ParsedSchema {
       return result;
     },
 
-    toJavaScript({ es6 }: Options = {}): string {
+    toJavaScript({ es6 }: JsOptions = {}): string {
       return js.generate(schema, { es6 });
     },
 
