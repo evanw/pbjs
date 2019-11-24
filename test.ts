@@ -4,7 +4,11 @@ import * as assert from 'assert';
 import * as Long from 'long';
 import * as fs from 'fs';
 import { parseSchema } from './index';
-import { Optional } from './test.proto';
+import { Optional, RepeatedUnpacked, RepeatedPacked, EnumTest, Enum } from './test.proto';
+
+function parseTestProto(): typeof import('./test.proto') {
+  return parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+}
 
 function prngUint32(): () => number {
   let seed = 1;
@@ -40,9 +44,9 @@ function* randomMessageStream(): Iterable<Optional> {
 ////////////////////////////////////////////////////////////////////////////////
 
 it('optional', async () => {
-  const schema = parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+  const schema = parseTestProto();
 
-  const message = {
+  const message: Optional = {
     field_int32: -1,
     field_int64: new Long(-1, -2),
     field_uint32: -1 >>> 0,
@@ -70,7 +74,6 @@ it('optional', async () => {
 
   const Optional = root.lookupType('test.Optional');
   const message3 = Optional.decode(buffer);
-
   assert.deepEqual(message3, message);
 
   const buffer2 = Optional.encode(message).finish();
@@ -80,9 +83,9 @@ it('optional', async () => {
 ////////////////////////////////////////////////////////////////////////////////
 
 it('repeated unpacked', async () => {
-  const schema = parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+  const schema = parseTestProto();
 
-  const message = {
+  const message: RepeatedUnpacked = {
     field_int32: [-1, -2],
     field_int64: [new Long(-1, -2), new Long(-3, -4)],
     field_uint32: [-1 >>> 0, -2 >>> 0],
@@ -110,7 +113,6 @@ it('repeated unpacked', async () => {
 
   const RepeatedUnpacked = root.lookupType('test.RepeatedUnpacked');
   const message3 = RepeatedUnpacked.decode(buffer);
-
   assert.deepEqual(message3, message);
 
   const buffer2 = RepeatedUnpacked.encode(message).finish();
@@ -120,9 +122,9 @@ it('repeated unpacked', async () => {
 ////////////////////////////////////////////////////////////////////////////////
 
 it('repeated packed', async () => {
-  const schema = parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+  const schema = parseTestProto();
 
-  const message = {
+  const message: RepeatedPacked = {
     field_int32: [-1, -2],
     field_int64: [new Long(-1, -2), new Long(-3, -4)],
     field_uint32: [-1 >>> 0, -2 >>> 0],
@@ -150,7 +152,6 @@ it('repeated packed', async () => {
 
   const RepeatedPacked = root.lookupType('test.RepeatedPacked');
   const message3 = RepeatedPacked.decode(buffer);
-
   assert.deepEqual(message3, message);
 
   const buffer2 = RepeatedPacked.encode(message).finish();
@@ -160,12 +161,12 @@ it('repeated packed', async () => {
 ////////////////////////////////////////////////////////////////////////////////
 
 it('enum test', async () => {
-  const schema = parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+  const schema = parseTestProto();
 
-  const message = {
-    a: 'B',
-    b: 'A',
-    c: ['A', 'B'],
+  const message: EnumTest = {
+    a: Enum.B,
+    b: Enum.A,
+    c: [Enum.A, Enum.B],
   };
 
   const buffer = schema.encodeEnumTest(message);
@@ -176,7 +177,8 @@ it('enum test', async () => {
 ////////////////////////////////////////////////////////////////////////////////
 
 it('fuzzing protobufjs', async () => {
-  const schema = parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+  const schema = parseTestProto();
+
   for (const message of randomMessageStream()) {
     const buffer = schema.encodeOptional(message);
     const message2 = schema.decodeOptional(buffer);
@@ -190,6 +192,7 @@ it('fuzzing pbjs', async () => {
   const root = new protobufjs.Root();
   await root.load('./test.proto', { keepCase: true });
   const Optional = root.lookupType('test.Optional');
+
   for (const message of randomMessageStream()) {
     const buffer = Optional.encode(message).finish();
     const message2 = Optional.decode(buffer);
@@ -269,7 +272,7 @@ it('cli: generate typescript', async () => {
 ////////////////////////////////////////////////////////////////////////////////
 
 it('cli: encode', async () => {
-  const schema = parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+  const schema = parseTestProto();
 
   const message = {
     x: 1.5,
@@ -282,9 +285,7 @@ it('cli: encode', async () => {
   cli.stdin.write(JSON.stringify(message));
   cli.stdin.end();
 
-  cli.stdout.on('data', chunk => {
-    chunks.push(chunk);
-  });
+  cli.stdout.on('data', chunk => chunks.push(chunk));
   await new Promise(resolve => cli.on('close', resolve));
 
   assert.deepStrictEqual(new Uint8Array(Buffer.concat(chunks)), schema.encodeNested(message));
@@ -293,7 +294,7 @@ it('cli: encode', async () => {
 ////////////////////////////////////////////////////////////////////////////////
 
 it('cli: decode', async () => {
-  const schema = parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+  const schema = parseTestProto();
 
   const message = {
     x: 1.5,
@@ -306,9 +307,7 @@ it('cli: decode', async () => {
   cli.stdin.write(schema.encodeNested(message));
   cli.stdin.end();
 
-  cli.stdout.on('data', chunk => {
-    chunks.push(chunk);
-  });
+  cli.stdout.on('data', chunk => chunks.push(chunk));
   await new Promise(resolve => cli.on('close', resolve));
 
   assert.strictEqual(Buffer.concat(chunks).toString(), JSON.stringify(message, null, 2) + '\n');

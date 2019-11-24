@@ -1,33 +1,4 @@
-interface Long {
-  low: number;
-  high: number;
-  unsigned: boolean;
-}
-
-interface ByteBuffer {
-  bytes: Uint8Array;
-  offset: number;
-  limit: number;
-}
-
-function pushTemporaryLength(bb: ByteBuffer): number {
-  let length = readVarint32(bb);
-  let limit = bb.limit;
-  bb.limit = bb.offset + length;
-  return limit;
-}
-
-function skipUnknownField(bb: ByteBuffer, type: number): void {
-  switch (type) {
-    case 0: while (readByte(bb) & 0x80) { } break;
-    case 2: skip(bb, readVarint32(bb)); break;
-    case 5: skip(bb, 4); break;
-    case 1: skip(bb, 8); break;
-    default: throw new Error("Unimplemented type: " + type);
-  }
-}
-
-export enum Enum {
+export const enum Enum {
   A = "A",
   B = "B",
 }
@@ -1294,6 +1265,35 @@ export function decodeEnumTest(binary: ByteBuffer | Uint8Array): EnumTest {
     throw new Error("Missing required field: b");
 
   return message;
+}
+
+interface Long {
+  low: number;
+  high: number;
+  unsigned: boolean;
+}
+
+interface ByteBuffer {
+  bytes: Uint8Array;
+  offset: number;
+  limit: number;
+}
+
+function pushTemporaryLength(bb: ByteBuffer): number {
+  let length = readVarint32(bb);
+  let limit = bb.limit;
+  bb.limit = bb.offset + length;
+  return limit;
+}
+
+function skipUnknownField(bb: ByteBuffer, type: number): void {
+  switch (type) {
+    case 0: while (readByte(bb) & 0x80) { } break;
+    case 2: skip(bb, readVarint32(bb)); break;
+    case 5: skip(bb, 4); break;
+    case 1: skip(bb, 8); break;
+    default: throw new Error("Unimplemented type: " + type);
+  }
 }
 
 // The code below was modified from https://github.com/protobufjs/bytebuffer.js

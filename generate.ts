@@ -44,44 +44,6 @@ export function generate(schema: Schema, options?: Options): string {
   const TYPE_SIZE_N = 2;
   const TYPE_SIZE_4 = 5;
 
-  if (!es6) {
-    lines.push(``);
-  }
-
-  if (typescript) {
-    lines.push('interface Long {');
-    lines.push('  low: number;');
-    lines.push('  high: number;');
-    lines.push('  unsigned: boolean;');
-    lines.push('}');
-    lines.push('');
-    lines.push('interface ByteBuffer {');
-    lines.push('  bytes: Uint8Array;');
-    lines.push('  offset: number;');
-    lines.push('  limit: number;');
-    lines.push('}');
-    lines.push('');
-  }
-
-  lines.push(`function pushTemporaryLength(bb${ts('ByteBuffer')})${ts('number')} {`);
-  lines.push(`  ${varOrLet} length = readVarint32(bb);`);
-  lines.push(`  ${varOrLet} limit = bb.limit;`);
-  lines.push(`  bb.limit = bb.offset + length;`);
-  lines.push(`  return limit;`);
-  lines.push(`}`);
-  lines.push(``);
-
-  lines.push(`function skipUnknownField(bb${ts('ByteBuffer')}, type${ts('number')})${ts('void')} {`);
-  lines.push(`  switch (type) {`);
-  lines.push(`    case ${TYPE_VAR_INT}: while (readByte(bb) & 0x80) { } break;`);
-  lines.push(`    case ${TYPE_SIZE_N}: skip(bb, readVarint32(bb)); break;`);
-  lines.push(`    case ${TYPE_SIZE_4}: skip(bb, 4); break;`);
-  lines.push(`    case ${TYPE_SIZE_8}: skip(bb, 8); break;`);
-  lines.push(`    default: throw new Error("Unimplemented type: " + type);`);
-  lines.push(`  }`);
-  lines.push(`}`);
-  lines.push(``);
-
   function codeForEnumExport(name: string): string {
     return es6 ? `export const ${name}` : `${pkg}.${name}`;
   }
@@ -107,7 +69,7 @@ export function generate(schema: Schema, options?: Options): string {
     }
 
     if (typescript) {
-      lines.push(`export enum ${def.name} {`);
+      lines.push(`export const enum ${def.name} {`);
       lines.push.apply(lines, items);
       lines.push(`}`);
       lines.push(``);
@@ -393,6 +355,40 @@ export function generate(schema: Schema, options?: Options): string {
     lines.push(es6 ? '}' : '};');
     lines.push(``);
   }
+
+  if (typescript) {
+    lines.push('interface Long {');
+    lines.push('  low: number;');
+    lines.push('  high: number;');
+    lines.push('  unsigned: boolean;');
+    lines.push('}');
+    lines.push('');
+    lines.push('interface ByteBuffer {');
+    lines.push('  bytes: Uint8Array;');
+    lines.push('  offset: number;');
+    lines.push('  limit: number;');
+    lines.push('}');
+    lines.push('');
+  }
+
+  lines.push(`function pushTemporaryLength(bb${ts('ByteBuffer')})${ts('number')} {`);
+  lines.push(`  ${varOrLet} length = readVarint32(bb);`);
+  lines.push(`  ${varOrLet} limit = bb.limit;`);
+  lines.push(`  bb.limit = bb.offset + length;`);
+  lines.push(`  return limit;`);
+  lines.push(`}`);
+  lines.push(``);
+
+  lines.push(`function skipUnknownField(bb${ts('ByteBuffer')}, type${ts('number')})${ts('void')} {`);
+  lines.push(`  switch (type) {`);
+  lines.push(`    case ${TYPE_VAR_INT}: while (readByte(bb) & 0x80) { } break;`);
+  lines.push(`    case ${TYPE_SIZE_N}: skip(bb, readVarint32(bb)); break;`);
+  lines.push(`    case ${TYPE_SIZE_4}: skip(bb, 4); break;`);
+  lines.push(`    case ${TYPE_SIZE_8}: skip(bb, 8); break;`);
+  lines.push(`    default: throw new Error("Unimplemented type: " + type);`);
+  lines.push(`  }`);
+  lines.push(`}`);
+  lines.push(``);
 
   lines.push(`// The code below was modified from https://github.com/protobufjs/bytebuffer.js`);
   lines.push(`// which is under the Apache License 2.0.`);

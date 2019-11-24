@@ -1,21 +1,3 @@
-
-function pushTemporaryLength(bb) {
-  var length = readVarint32(bb);
-  var limit = bb.limit;
-  bb.limit = bb.offset + length;
-  return limit;
-}
-
-function skipUnknownField(bb, type) {
-  switch (type) {
-    case 0: while (readByte(bb) & 0x80) { } break;
-    case 2: skip(bb, readVarint32(bb)); break;
-    case 5: skip(bb, 4); break;
-    case 1: skip(bb, 8); break;
-    default: throw new Error("Unimplemented type: " + type);
-  }
-}
-
 exports.encodeEnum = {
   A: 0,
   B: 1,
@@ -1244,6 +1226,23 @@ exports.decodeEnumTest = function (binary) {
 
   return message;
 };
+
+function pushTemporaryLength(bb) {
+  var length = readVarint32(bb);
+  var limit = bb.limit;
+  bb.limit = bb.offset + length;
+  return limit;
+}
+
+function skipUnknownField(bb, type) {
+  switch (type) {
+    case 0: while (readByte(bb) & 0x80) { } break;
+    case 2: skip(bb, readVarint32(bb)); break;
+    case 5: skip(bb, 4); break;
+    case 1: skip(bb, 8); break;
+    default: throw new Error("Unimplemented type: " + type);
+  }
+}
 
 // The code below was modified from https://github.com/protobufjs/bytebuffer.js
 // which is under the Apache License 2.0.
