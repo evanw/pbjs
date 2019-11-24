@@ -147,51 +147,54 @@ export function generate(schema: Schema, options?: Options): string {
     }
 
     lines.push(`${codeForFunctionExport('encode' + def.name)}(message${ts(def.name)})${ts('Uint8Array')} {`);
-    lines.push(`  ${varOrLet} bb = newByteBuffer();`);
+    lines.push(`  ${varOrLet} bb = popByteBuffer();`);
+    lines.push(`  _encode${def.name}(message, bb);`);
+    lines.push(`  return toUint8Array(bb);`);
+    lines.push(`}`);
     lines.push(``);
+
+    lines.push(`function _encode${def.name}(message${ts(def.name)}, bb${ts('ByteBuffer')})${ts('void')} {`);
 
     function encodeValue(name: string, buffer: string, value: string, nested = 'nested') {
       let type: number;
-      let write: string;
-      let before: string | null = null;
+      let write: string[];
 
       switch (name) {
-        case 'bool': type = TYPE_VAR_INT; write = `writeByte(${buffer}, ${value} ? 1 : 0)`; break;
-        case 'bytes': type = TYPE_SIZE_N; write = `writeVarint32(${buffer}, ${value}.length), writeBytes(${buffer}, ${value})`; break;
-        case 'double': type = TYPE_SIZE_8; write = `writeDouble(${buffer}, ${value})`; break;
-        case 'fixed32': type = TYPE_SIZE_4; write = `writeInt32(${buffer}, ${value})`; break;
-        case 'fixed64': type = TYPE_SIZE_8; write = `writeInt64(${buffer}, ${value})`; break;
-        case 'float': type = TYPE_SIZE_4; write = `writeFloat(${buffer}, ${value})`; break;
-        case 'int32': type = TYPE_VAR_INT; write = `writeVarint64(${buffer}, intToLong(${value}))`; break;
-        case 'int64': type = TYPE_VAR_INT; write = `writeVarint64(${buffer}, ${value})`; break;
-        case 'sfixed32': type = TYPE_SIZE_4; write = `writeInt32(${buffer}, ${value})`; break;
-        case 'sfixed64': type = TYPE_SIZE_8; write = `writeInt64(${buffer}, ${value})`; break;
-        case 'sint32': type = TYPE_VAR_INT; write = `writeVarint32ZigZag(${buffer}, ${value})`; break;
-        case 'sint64': type = TYPE_VAR_INT; write = `writeVarint64ZigZag(${buffer}, ${value})`; break;
-        case 'uint32': type = TYPE_VAR_INT; write = `writeVarint32(${buffer}, ${value})`; break;
-        case 'uint64': type = TYPE_VAR_INT; write = `writeVarint64(${buffer}, ${value})`; break;
-
-        case 'string': {
-          type = TYPE_SIZE_N;
-          before = `${varOrLet} ${nested} = utf8Encoder.encode(${value})`;
-          write = `writeVarint32(${buffer}, ${nested}.length), writeBytes(${buffer}, ${nested})`;
-          break;
-        }
+        case 'bool': type = TYPE_VAR_INT; write = [`writeByte(${buffer}, ${value} ? 1 : 0)`]; break;
+        case 'bytes': type = TYPE_SIZE_N; write = [`writeVarint32(${buffer}, ${value}.length), writeBytes(${buffer}, ${value})`]; break;
+        case 'double': type = TYPE_SIZE_8; write = [`writeDouble(${buffer}, ${value})`]; break;
+        case 'fixed32': type = TYPE_SIZE_4; write = [`writeInt32(${buffer}, ${value})`]; break;
+        case 'fixed64': type = TYPE_SIZE_8; write = [`writeInt64(${buffer}, ${value})`]; break;
+        case 'float': type = TYPE_SIZE_4; write = [`writeFloat(${buffer}, ${value})`]; break;
+        case 'int32': type = TYPE_VAR_INT; write = [`writeVarint64(${buffer}, intToLong(${value}))`]; break;
+        case 'int64': type = TYPE_VAR_INT; write = [`writeVarint64(${buffer}, ${value})`]; break;
+        case 'sfixed32': type = TYPE_SIZE_4; write = [`writeInt32(${buffer}, ${value})`]; break;
+        case 'sfixed64': type = TYPE_SIZE_8; write = [`writeInt64(${buffer}, ${value})`]; break;
+        case 'sint32': type = TYPE_VAR_INT; write = [`writeVarint32ZigZag(${buffer}, ${value})`]; break;
+        case 'sint64': type = TYPE_VAR_INT; write = [`writeVarint64ZigZag(${buffer}, ${value})`]; break;
+        case 'uint32': type = TYPE_VAR_INT; write = [`writeVarint32(${buffer}, ${value})`]; break;
+        case 'uint64': type = TYPE_VAR_INT; write = [`writeVarint64(${buffer}, ${value})`]; break;
+        case 'string': type = TYPE_SIZE_N; write = [`writeString(${buffer}, ${value})`]; break;
 
         default: {
           if (name in enums) {
             type = TYPE_VAR_INT;
-            write = `writeVarint32(${buffer}, ${prefix}encode${name}[${value}])`;
+            write = [`writeVarint32(${buffer}, ${prefix}encode${name}[${value}])`];
           } else {
             type = TYPE_SIZE_N;
-            before = `${varOrLet} ${nested} = ${prefix}encode${name}(${value})`;
-            write = `writeVarint32(${buffer}, ${nested}.length), writeBytes(${buffer}, ${nested})`;
+            write = [
+              `${varOrLet} ${nested} = popByteBuffer()`,
+              `_encode${name}(${value}, ${nested})`,
+              `writeVarint32(${buffer}, ${nested}.limit)`,
+              `writeByteBuffer(${buffer}, ${nested})`,
+              `pushByteBuffer(${nested})`,
+            ];
           }
           break;
         }
       }
 
-      return { type, write, before };
+      return { type, write };
     }
 
     for (const field of def.fields) {
@@ -219,48 +222,46 @@ export function generate(schema: Schema, options?: Options): string {
           const value = encodeValue(to, 'nested', 'value', 'nestedValue');
 
           lines.push(`    for (${varOrLet} key in ${collection}) {`);
-          lines.push(`      ${varOrLet} nested = newByteBuffer();`);
+          lines.push(`      ${varOrLet} nested = popByteBuffer();`);
           lines.push(`      ${varOrLet} value = ${collection}[key];`);
-          if (key.before) lines.push(`      ${key.before};`);
-          if (value.before) lines.push(`      ${value.before};`);
           lines.push(`      writeVarint32(nested, ${(1 << 3) | key.type});`);
-          lines.push(`      ${key.write};`);
+          for (const line of key.write) lines.push(`      ${line};`);
           lines.push(`      writeVarint32(nested, ${(2 << 3) | value.type});`);
-          lines.push(`      ${value.write};`);
+          for (const line of value.write) lines.push(`      ${line};`);
           lines.push(`      writeVarint32(bb, ${(field.tag << 3) | TYPE_SIZE_N});`);
           lines.push(`      writeVarint32(bb, nested.offset);`);
-          lines.push(`      writeBytes(bb, toUint8Array(nested));`);
+          lines.push(`      writeByteBuffer(bb, nested);`);
+          lines.push(`      pushByteBuffer(nested);`);
           lines.push(`    }`);
         }
 
         else if (isPacked) {
-          const { write, before } = encodeValue(field.type, 'packed', 'value');
-          lines.push(`    ${varOrLet} packed = newByteBuffer();`);
+          const { write } = encodeValue(field.type, 'packed', 'value');
+          lines.push(`    ${varOrLet} packed = popByteBuffer();`);
           if (es6) {
             lines.push(`    for (let value of ${collection}) {`);
           } else {
             lines.push(`    for (var i = 0; i < ${collection}.length; i++) {`);
             lines.push(`      var value = ${collection}[i];`);
           }
-          if (before) lines.push(`      ${before};`);
-          lines.push(`      ${write};`);
+          for (const line of write) lines.push(`      ${line};`);
           lines.push(`    }`);
           lines.push(`    writeVarint32(bb, ${(field.tag << 3) | TYPE_SIZE_N});`);
           lines.push(`    writeVarint32(bb, packed.offset);`);
-          lines.push(`    writeBytes(bb, toUint8Array(packed));`);
+          lines.push(`    writeByteBuffer(bb, packed);`);
+          lines.push(`    pushByteBuffer(packed);`);
         }
 
         else {
-          const { type, write, before } = encodeValue(field.type, 'bb', 'value');
+          const { type, write } = encodeValue(field.type, 'bb', 'value');
           if (es6) {
             lines.push(`    for (let value of ${collection}) {`);
           } else {
             lines.push(`    for (var i = 0; i < ${collection}.length; i++) {`);
             lines.push(`      var value = ${collection}[i];`);
           }
-          if (before) lines.push(`      ${before};`);
           lines.push(`      writeVarint32(bb, ${(field.tag << 3) | type});`);
-          lines.push(`      ${write};`);
+          for (const line of write) lines.push(`      ${line};`);
           lines.push(`    }`);
         }
 
@@ -270,24 +271,30 @@ export function generate(schema: Schema, options?: Options): string {
 
       else {
         const value = `$${field.name}`;
-        const { type, write, before } = encodeValue(field.type, 'bb', value);
+        const { type, write } = encodeValue(field.type, 'bb', value);
         lines.push(`  ${varOrLet} ${value} = message.${field.name};`);
         lines.push(`  if (${value} !== undefined) {`);
         lines.push(`    writeVarint32(bb, ${(field.tag << 3) | type});`);
-        if (before) lines.push(`    ${before};`);
-        lines.push(`    ${write};`);
+        for (const line of write) lines.push(`    ${line};`);
         lines.push(`  }`);
         lines.push(``);
       }
     }
 
-    lines.push(`  return toUint8Array(bb);`);
+    if (def.fields.length > 0) {
+      lines.pop();
+    }
+
     lines.push(es6 ? '}' : '};');
     lines.push(``);
 
-    lines.push(`${codeForFunctionExport('decode' + def.name)}(binary${ts('ByteBuffer | Uint8Array')})${ts(def.name)} {`);
+    lines.push(`${codeForFunctionExport('decode' + def.name)}(binary${ts('Uint8Array')})${ts(def.name)} {`);
+    lines.push(`  return _decode${def.name}(wrapByteBuffer(binary));`);
+    lines.push(`}`);
+    lines.push(``);
+
+    lines.push(`function _decode${def.name}(bb${ts('ByteBuffer')})${ts(def.name)} {`);
     lines.push(`  ${varOrLet} message${ts(def.name)} = {}${typescript ? ' as any' : ''};`);
-    lines.push(`  ${varOrLet} bb = binary instanceof Uint8Array ? newByteBuffer(binary) : binary;`);
     lines.push(``);
     lines.push(`  end_of_message: while (!isAtEnd(bb)) {`);
     lines.push(`    ${varOrLet} tag = readVarint32(bb);`);
@@ -314,7 +321,7 @@ export function generate(schema: Schema, options?: Options): string {
         case 'sfixed64': read = `readInt64(bb, /* unsigned */ false)`; break;
         case 'sint32': read = `readVarint32ZigZag(bb)`; break;
         case 'sint64': read = `readVarint64ZigZag(bb)`; break;
-        case 'string': read = `utf8Decoder.decode(readBytes(bb, readVarint32(bb)))`; break;
+        case 'string': read = `readString(bb, readVarint32(bb))`; break;
         case 'uint32': read = `readVarint32(bb) >>> 0`; break;
         case 'uint64': read = `readVarint64(bb, /* unsigned */ true)`; break;
 
@@ -323,7 +330,7 @@ export function generate(schema: Schema, options?: Options): string {
             read = `${prefix}decode${name}[readVarint32(bb)]`;
           } else {
             lines.push(`        ${varOrLet} ${limit} = pushTemporaryLength(bb);`);
-            read = `${prefix}decode${name}(bb)`;
+            read = `_decode${name}(bb)`;
             after = `bb.limit = ${limit}`;
           }
           break;
@@ -487,10 +494,6 @@ export function generate(schema: Schema, options?: Options): string {
   lines.push(`// which is under the Apache License 2.0.`);
   lines.push(``);
 
-  lines.push(`${varOrLet} utf8Decoder = new TextDecoder();`);
-  lines.push(`${varOrLet} utf8Encoder = new TextEncoder();`);
-  lines.push(``);
-
   lines.push(`${varOrLet} f32 = new Float32Array(1);`);
   lines.push(`${varOrLet} f32_u8 = new Uint8Array(f32.buffer);`);
   lines.push(``);
@@ -509,12 +512,24 @@ export function generate(schema: Schema, options?: Options): string {
   lines.push(`}`);
   lines.push(``);
 
-  lines.push(`function newByteBuffer(bytes${typescript ? '?: Uint8Array' : ''})${ts('ByteBuffer')} {`);
-  lines.push(`  if (bytes) {`);
-  lines.push(`    return { bytes, offset: 0, limit: bytes.length };`);
-  lines.push(`  } else {`);
-  lines.push(`    return { bytes: new Uint8Array(64), offset: 0, limit: 0 };`);
-  lines.push(`  }`);
+  lines.push(`${varOrLet} bbStack${ts('ByteBuffer[]')} = [];`);
+  lines.push(``);
+
+  lines.push(`function popByteBuffer()${ts('ByteBuffer')} {`);
+  lines.push(`  const bb = bbStack.pop();`);
+  lines.push(`  if (!bb) return { bytes: new Uint8Array(64), offset: 0, limit: 0 };`);
+  lines.push(`  bb.offset = bb.limit = 0;`);
+  lines.push(`  return bb;`);
+  lines.push(`}`);
+  lines.push(``);
+
+  lines.push(`function pushByteBuffer(bb${ts('ByteBuffer')})${ts('void')} {`);
+  lines.push(`  bbStack.push(bb);`);
+  lines.push(`}`);
+  lines.push(``);
+
+  lines.push(`function wrapByteBuffer(bytes${typescript ? ': Uint8Array' : ''})${ts('ByteBuffer')} {`);
+  lines.push(`  return { bytes, offset: 0, limit: bytes.length };`);
   lines.push(`}`);
   lines.push(``);
 
@@ -578,6 +593,140 @@ export function generate(schema: Schema, options?: Options): string {
   lines.push(`}`);
   lines.push(``);
 
+  lines.push(`function readString(bb${ts('ByteBuffer')}, count${ts('number')})${ts('string')} {`);
+  lines.push(`  // Sadly a hand-coded UTF8 decoder is much faster than subarray+TextDecoder in V8`);
+  lines.push(`  ${varOrLet} offset = advance(bb, count);`);
+  lines.push(`  ${varOrLet} fromCharCode = String.fromCharCode;`);
+  lines.push(`  ${varOrLet} bytes = bb.bytes;`);
+  lines.push(`  ${varOrLet} invalid = '\\uFFFD';`);
+  lines.push(`  ${varOrLet} text = '';`);
+  lines.push(``);
+  lines.push(`  for (${varOrLet} i = 0; i < count; i++) {`);
+  lines.push(`    ${varOrLet} c1 = bytes[i + offset], c2${ts('number')}, c3${ts('number')}, c4${ts('number')}, c${ts('number')};`);
+  lines.push(``);
+  lines.push(`    // 1 byte`);
+  lines.push(`    if ((c1 & 0x80) === 0) {`);
+  lines.push(`      text += fromCharCode(c1);`);
+  lines.push(`    }`);
+  lines.push(``);
+  lines.push(`    // 2 bytes`);
+  lines.push(`    else if ((c1 & 0xE0) === 0xC0) {`);
+  lines.push(`      if (i + 1 >= count) text += invalid;`);
+  lines.push(`      else {`);
+  lines.push(`        c2 = bytes[i + offset + 1];`);
+  lines.push(`        if ((c2 & 0xC0) !== 0x80) text += invalid;`);
+  lines.push(`        else {`);
+  lines.push(`          c = ((c1 & 0x1F) << 6) | (c2 & 0x3F);`);
+  lines.push(`          if (c < 0x80) text += invalid;`);
+  lines.push(`          else {`);
+  lines.push(`            text += fromCharCode(c);`);
+  lines.push(`            i++;`);
+  lines.push(`          }`);
+  lines.push(`        }`);
+  lines.push(`      }`);
+  lines.push(`    }`);
+  lines.push(``);
+  lines.push(`    // 3 bytes`);
+  lines.push(`    else if ((c1 & 0xF0) == 0xE0) {`);
+  lines.push(`      if (i + 2 >= count) text += invalid;`);
+  lines.push(`      else {`);
+  lines.push(`        c2 = bytes[i + offset + 1];`);
+  lines.push(`        c3 = bytes[i + offset + 2];`);
+  lines.push(`        if (((c2 | (c3 << 8)) & 0xC0C0) !== 0x8080) text += invalid;`);
+  lines.push(`        else {`);
+  lines.push(`          c = ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6) | (c3 & 0x3F);`);
+  lines.push(`          if (c < 0x0800 || (c >= 0xD800 && c <= 0xDFFF)) text += invalid;`);
+  lines.push(`          else {`);
+  lines.push(`            text += fromCharCode(c);`);
+  lines.push(`            i += 2;`);
+  lines.push(`          }`);
+  lines.push(`        }`);
+  lines.push(`      }`);
+  lines.push(`    }`);
+  lines.push(``);
+  lines.push(`    // 4 bytes`);
+  lines.push(`    else if ((c1 & 0xF8) == 0xF0) {`);
+  lines.push(`      if (i + 3 >= count) text += invalid;`);
+  lines.push(`      else {`);
+  lines.push(`        c2 = bytes[i + offset + 1];`);
+  lines.push(`        c3 = bytes[i + offset + 2];`);
+  lines.push(`        c4 = bytes[i + offset + 3];`);
+  lines.push(`        if (((c2 | (c3 << 8) | (c4 << 16)) & 0xC0C0C0) !== 0x808080) text += invalid;`);
+  lines.push(`        else {`);
+  lines.push(`          c = ((c1 & 0x07) << 0x12) | ((c2 & 0x3F) << 0x0C) | ((c3 & 0x3F) << 0x06) | (c4 & 0x3F);`);
+  lines.push(`          if (c < 0x10000 || c > 0x10FFFF) text += invalid;`);
+  lines.push(`          else {`);
+  lines.push(`            c -= 0x10000;`);
+  lines.push(`            text += fromCharCode((c >> 10) + 0xD800, (c & 0x3FF) + 0xDC00);`);
+  lines.push(`            i += 3;`);
+  lines.push(`          }`);
+  lines.push(`        }`);
+  lines.push(`      }`);
+  lines.push(`    }`);
+  lines.push(``);
+  lines.push(`    else text += invalid;`);
+  lines.push(`  }`);
+  lines.push(``);
+  lines.push(`  return text;`);
+  lines.push(`}`);
+  lines.push(``);
+
+  lines.push(`function writeString(bb${ts('ByteBuffer')}, text${ts('string')})${ts('void')} {`);
+  lines.push(`  // Sadly a hand-coded UTF8 encoder is much faster than TextEncoder+set in V8`);
+  lines.push(`  ${varOrLet} n = text.length;`);
+  lines.push(`  ${varOrLet} byteCount = 0;`);
+  lines.push(``);
+  lines.push(`  // Write the byte count first`);
+  lines.push(`  for (${varOrLet} i = 0; i < n; i++) {`);
+  lines.push(`    ${varOrLet} c = text.charCodeAt(i);`);
+  lines.push(`    if (c >= 0xD800 && c <= 0xDBFF && i + 1 < n) {`);
+  lines.push(`      c = (c << 10) + text.charCodeAt(++i) - 0x35FDC00;`);
+  lines.push(`    }`);
+  lines.push(`    byteCount += c < 0x80 ? 1 : c < 0x800 ? 2 : c < 0x10000 ? 3 : 4;`);
+  lines.push(`  }`);
+  lines.push(`  writeVarint32(bb, byteCount);`);
+  lines.push(``);
+  lines.push(`  ${varOrLet} offset = grow(bb, byteCount);`);
+  lines.push(`  ${varOrLet} bytes = bb.bytes;`);
+  lines.push(``);
+  lines.push(`  // Then write the bytes`);
+  lines.push(`  for (${varOrLet} i = 0; i < n; i++) {`);
+  lines.push(`    ${varOrLet} c = text.charCodeAt(i);`);
+  lines.push(`    if (c >= 0xD800 && c <= 0xDBFF && i + 1 < n) {`);
+  lines.push(`      c = (c << 10) + text.charCodeAt(++i) - 0x35FDC00;`);
+  lines.push(`    }`);
+  lines.push(`    if (c < 0x80) {`);
+  lines.push(`      bytes[offset++] = c;`);
+  lines.push(`    } else {`);
+  lines.push(`      if (c < 0x800) {`);
+  lines.push(`        bytes[offset++] = ((c >> 6) & 0x1F) | 0xC0;`);
+  lines.push(`      } else {`);
+  lines.push(`        if (c < 0x10000) {`);
+  lines.push(`          bytes[offset++] = ((c >> 12) & 0x0F) | 0xE0;`);
+  lines.push(`        } else {`);
+  lines.push(`          bytes[offset++] = ((c >> 18) & 0x07) | 0xF0;`);
+  lines.push(`          bytes[offset++] = ((c >> 12) & 0x3F) | 0x80;`);
+  lines.push(`        }`);
+  lines.push(`        bytes[offset++] = ((c >> 6) & 0x3F) | 0x80;`);
+  lines.push(`      }`);
+  lines.push(`      bytes[offset++] = (c & 0x3F) | 0x80;`);
+  lines.push(`    }`);
+  lines.push(`  }`);
+  lines.push(`}`);
+  lines.push(``);
+
+  lines.push(`function writeByteBuffer(bb${ts('ByteBuffer')}, buffer${ts('ByteBuffer')})${ts('void')} {`);
+  lines.push(`  ${varOrLet} offset = grow(bb, buffer.limit);`);
+  lines.push(`  ${varOrLet} from = bb.bytes;`);
+  lines.push(`  ${varOrLet} to = buffer.bytes;`);
+  lines.push(``);
+  lines.push(`  // This for loop is much faster than subarray+set on V8`);
+  lines.push(`  for (${varOrLet} i = 0, n = buffer.limit; i < n; i++) {`);
+  lines.push(`    from[i + offset] = to[i];`);
+  lines.push(`  }`);
+  lines.push(`}`);
+  lines.push(``);
+
   lines.push(`function readByte(bb${ts('ByteBuffer')})${ts('number')} {`);
   lines.push(`  return bb.bytes[advance(bb, 1)];`);
   lines.push(`}`);
@@ -591,29 +740,61 @@ export function generate(schema: Schema, options?: Options): string {
 
   lines.push(`function readFloat(bb${ts('ByteBuffer')})${ts('number')} {`);
   lines.push(`  ${varOrLet} offset = advance(bb, 4);`);
-  lines.push(`  f32_u8.set(bb.bytes.subarray(offset, offset + 4));`);
+  lines.push(`  ${varOrLet} bytes = bb.bytes;`);
+  lines.push(``);
+  lines.push(`  // Manual copying is much faster than subarray+set in V8`);
+  lines.push(`  f32_u8[0] = bytes[offset++];`);
+  lines.push(`  f32_u8[1] = bytes[offset++];`);
+  lines.push(`  f32_u8[2] = bytes[offset++];`);
+  lines.push(`  f32_u8[3] = bytes[offset++];`);
   lines.push(`  return f32[0];`);
   lines.push(`}`);
   lines.push(``);
 
   lines.push(`function writeFloat(bb${ts('ByteBuffer')}, value${ts('number')})${ts('void')} {`);
   lines.push(`  ${varOrLet} offset = grow(bb, 4);`);
+  lines.push(`  ${varOrLet} bytes = bb.bytes;`);
   lines.push(`  f32[0] = value;`);
-  lines.push(`  bb.bytes.set(f32_u8, offset);`);
+  lines.push(``);
+  lines.push(`  // Manual copying is much faster than subarray+set in V8`);
+  lines.push(`  bytes[offset++] = f32_u8[0];`);
+  lines.push(`  bytes[offset++] = f32_u8[1];`);
+  lines.push(`  bytes[offset++] = f32_u8[2];`);
+  lines.push(`  bytes[offset++] = f32_u8[3];`);
   lines.push(`}`);
   lines.push(``);
 
   lines.push(`function readDouble(bb${ts('ByteBuffer')})${ts('number')} {`);
   lines.push(`  ${varOrLet} offset = advance(bb, 8);`);
-  lines.push(`  f64_u8.set(bb.bytes.subarray(offset, offset + 8));`);
+  lines.push(`  ${varOrLet} bytes = bb.bytes;`);
+  lines.push(``);
+  lines.push(`  // Manual copying is much faster than subarray+set in V8`);
+  lines.push(`  f64_u8[0] = bytes[offset++];`);
+  lines.push(`  f64_u8[1] = bytes[offset++];`);
+  lines.push(`  f64_u8[2] = bytes[offset++];`);
+  lines.push(`  f64_u8[3] = bytes[offset++];`);
+  lines.push(`  f64_u8[4] = bytes[offset++];`);
+  lines.push(`  f64_u8[5] = bytes[offset++];`);
+  lines.push(`  f64_u8[6] = bytes[offset++];`);
+  lines.push(`  f64_u8[7] = bytes[offset++];`);
   lines.push(`  return f64[0];`);
   lines.push(`}`);
   lines.push(``);
 
   lines.push(`function writeDouble(bb${ts('ByteBuffer')}, value${ts('number')})${ts('void')} {`);
   lines.push(`  ${varOrLet} offset = grow(bb, 8);`);
+  lines.push(`  ${varOrLet} bytes = bb.bytes;`);
   lines.push(`  f64[0] = value;`);
-  lines.push(`  bb.bytes.set(f64_u8, offset);`);
+  lines.push(``);
+  lines.push(`  // Manual copying is much faster than subarray+set in V8`);
+  lines.push(`  bytes[offset++] = f64_u8[0];`);
+  lines.push(`  bytes[offset++] = f64_u8[1];`);
+  lines.push(`  bytes[offset++] = f64_u8[2];`);
+  lines.push(`  bytes[offset++] = f64_u8[3];`);
+  lines.push(`  bytes[offset++] = f64_u8[4];`);
+  lines.push(`  bytes[offset++] = f64_u8[5];`);
+  lines.push(`  bytes[offset++] = f64_u8[6];`);
+  lines.push(`  bytes[offset++] = f64_u8[7];`);
   lines.push(`}`);
   lines.push(``);
 
