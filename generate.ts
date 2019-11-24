@@ -437,18 +437,19 @@ export function generate(schema: Schema, options?: Options): string {
   }
 
   if (typescript) {
-    lines.push('interface Long {');
-    lines.push('  low: number;');
-    lines.push('  high: number;');
-    lines.push('  unsigned: boolean;');
-    lines.push('}');
-    lines.push('');
-    lines.push('interface ByteBuffer {');
-    lines.push('  bytes: Uint8Array;');
-    lines.push('  offset: number;');
-    lines.push('  limit: number;');
-    lines.push('}');
-    lines.push('');
+    lines.push(`export interface Long {`);
+    lines.push(`  low: number;`);
+    lines.push(`  high: number;`);
+    lines.push(`  unsigned: boolean;`);
+    lines.push(`}`);
+    lines.push(``);
+
+    lines.push(`interface ByteBuffer {`);
+    lines.push(`  bytes: Uint8Array;`);
+    lines.push(`  offset: number;`);
+    lines.push(`  limit: number;`);
+    lines.push(`}`);
+    lines.push(``);
   }
 
   lines.push(`function pushTemporaryLength(bb${ts('ByteBuffer')})${ts('number')} {`);

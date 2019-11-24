@@ -1930,7 +1930,7 @@ function _decodeMapTestLongAndBool(bb: ByteBuffer): MapTestLongAndBool {
   return message;
 }
 
-interface Long {
+export interface Long {
   low: number;
   high: number;
   unsigned: boolean;
