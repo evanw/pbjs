@@ -4,6 +4,38 @@ import * as assert from 'assert';
 import * as Long from 'long';
 import * as fs from 'fs';
 import { parseSchema } from './index';
+import { Optional } from './test.proto';
+
+function prngUint32(): () => number {
+  let seed = 1;
+  return () => {
+    const temp = (seed * 20077 + (seed & 0xFFFF) * 1103495168 + 12345) & 0x7FFFFFFF;
+    seed = (temp * 20077 + (temp & 0xFFFF) * 1103495168 + 12345) & 0x7FFFFFFF;
+    return ((temp & 0xFFFF) | (seed << 16)) >>> 0;
+  };
+}
+
+function* randomMessageStream(): Iterable<Optional> {
+  const randomUint32 = prngUint32();
+  const randomFloat64 = () => randomUint32() / (-1 >>> 0);
+
+  for (let i = 0; i < 1000; i++) {
+    yield {
+      field_int32: randomUint32() | 0,
+      field_int64: new Long(randomUint32(), randomUint32()),
+      field_uint32: randomUint32(),
+      field_uint64: new Long(randomUint32(), randomUint32(), true),
+      field_sint32: randomUint32() | 0,
+      field_sint64: new Long(randomUint32(), randomUint32()),
+      field_fixed64: new Long(randomUint32(), randomUint32(), true),
+      field_sfixed64: new Long(randomUint32(), randomUint32()),
+      field_double: randomFloat64(),
+      field_fixed32: randomUint32(),
+      field_sfixed32: randomUint32() | 0,
+      field_float: Math.fround(randomFloat64()),
+    };
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -139,6 +171,30 @@ it('enum test', async () => {
   const buffer = schema.encodeEnumTest(message);
   const message2 = schema.decodeEnumTest(buffer);
   assert.deepEqual(message2, message);
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+it('fuzzing protobufjs', async () => {
+  const schema = parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
+  for (const message of randomMessageStream()) {
+    const buffer = schema.encodeOptional(message);
+    const message2 = schema.decodeOptional(buffer);
+    assert.deepEqual(message2, message);
+  }
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+it('fuzzing pbjs', async () => {
+  const root = new protobufjs.Root();
+  await root.load('./test.proto', { keepCase: true });
+  const Optional = root.lookupType('test.Optional');
+  for (const message of randomMessageStream()) {
+    const buffer = Optional.encode(message).finish();
+    const message2 = Optional.decode(buffer);
+    assert.deepEqual(message2, message);
+  }
 });
 
 ////////////////////////////////////////////////////////////////////////////////
