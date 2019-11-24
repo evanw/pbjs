@@ -1,3 +1,5 @@
+syntax = "proto2";
+
 package test;
 
 enum Enum {
@@ -30,45 +32,63 @@ message Optional {
 }
 
 message RepeatedUnpacked {
-  repeated int32 field_int32 = 1 [packed = false];
-  repeated int64 field_int64 = 2 [packed = false];
-  repeated uint32 field_uint32 = 3 [packed = false];
-  repeated uint64 field_uint64 = 4 [packed = false];
-  repeated sint32 field_sint32 = 5 [packed = false];
-  repeated sint64 field_sint64 = 6 [packed = false];
-  repeated bool field_bool = 7 [packed = false];
-  repeated fixed64 field_fixed64 = 8 [packed = false];
-  repeated sfixed64 field_sfixed64 = 9 [packed = false];
-  repeated double field_double = 10 [packed = false];
-  repeated string field_string = 11 [packed = false];
-  repeated bytes field_bytes = 12 [packed = false];
-  repeated fixed32 field_fixed32 = 13 [packed = false];
-  repeated sfixed32 field_sfixed32 = 14 [packed = false];
-  repeated float field_float = 15 [packed = false];
-  repeated Nested field_nested = 16 [packed = false];
+  repeated int32 field_int32 = 1 [ packed = false ];
+  repeated int64 field_int64 = 2 [ packed = false ];
+  repeated uint32 field_uint32 = 3 [ packed = false ];
+  repeated uint64 field_uint64 = 4 [ packed = false ];
+  repeated sint32 field_sint32 = 5 [ packed = false ];
+  repeated sint64 field_sint64 = 6 [ packed = false ];
+  repeated bool field_bool = 7 [ packed = false ];
+  repeated fixed64 field_fixed64 = 8 [ packed = false ];
+  repeated sfixed64 field_sfixed64 = 9 [ packed = false ];
+  repeated double field_double = 10 [ packed = false ];
+  repeated string field_string = 11 [ packed = false ];
+  repeated bytes field_bytes = 12 [ packed = false ];
+  repeated fixed32 field_fixed32 = 13 [ packed = false ];
+  repeated sfixed32 field_sfixed32 = 14 [ packed = false ];
+  repeated float field_float = 15 [ packed = false ];
+  repeated Nested field_nested = 16 [ packed = false ];
 }
 
 message RepeatedPacked {
-  repeated int32 field_int32 = 1 [packed = true];
-  repeated int64 field_int64 = 2 [packed = true];
-  repeated uint32 field_uint32 = 3 [packed = true];
-  repeated uint64 field_uint64 = 4 [packed = true];
-  repeated sint32 field_sint32 = 5 [packed = true];
-  repeated sint64 field_sint64 = 6 [packed = true];
-  repeated bool field_bool = 7 [packed = true];
-  repeated fixed64 field_fixed64 = 8 [packed = true];
-  repeated sfixed64 field_sfixed64 = 9 [packed = true];
-  repeated double field_double = 10 [packed = true];
-  repeated string field_string = 11 [packed = false];
-  repeated bytes field_bytes = 12 [packed = false];
-  repeated fixed32 field_fixed32 = 13 [packed = true];
-  repeated sfixed32 field_sfixed32 = 14 [packed = true];
-  repeated float field_float = 15 [packed = true];
-  repeated Nested field_nested = 16 [packed = false];
+  repeated int32 field_int32 = 1 [ packed = true ];
+  repeated int64 field_int64 = 2 [ packed = true ];
+  repeated uint32 field_uint32 = 3 [ packed = true ];
+  repeated uint64 field_uint64 = 4 [ packed = true ];
+  repeated sint32 field_sint32 = 5 [ packed = true ];
+  repeated sint64 field_sint64 = 6 [ packed = true ];
+  repeated bool field_bool = 7 [ packed = true ];
+  repeated fixed64 field_fixed64 = 8 [ packed = true ];
+  repeated sfixed64 field_sfixed64 = 9 [ packed = true ];
+  repeated double field_double = 10 [ packed = true ];
+  repeated string field_string = 11 [ packed = false ];
+  repeated bytes field_bytes = 12 [ packed = false ];
+  repeated fixed32 field_fixed32 = 13 [ packed = true ];
+  repeated sfixed32 field_sfixed32 = 14 [ packed = true ];
+  repeated float field_float = 15 [ packed = true ];
+  repeated Nested field_nested = 16 [ packed = false ];
 }
 
 message EnumTest {
   optional Enum a = 1;
   required Enum b = 2;
   repeated Enum c = 3;
+}
+
+message MapTestIntAndString {
+  map<int32, bool> field_int32 = 1;
+  map<uint32, bool> field_uint32 = 2;
+  map<sint32, bool> field_sint32 = 3;
+  map<string, bool> field_string = 5;
+  map<fixed32, bool> field_fixed32 = 6;
+  map<sfixed32, bool> field_sfixed32 = 7;
+}
+
+message MapTestLongAndBool {
+  map<int64, bool> field_int64 = 1;
+  map<uint64, bool> field_uint64 = 2;
+  map<sint64, bool> field_sint64 = 3;
+  map<fixed64, bool> field_fixed64 = 4;
+  map<sfixed64, bool> field_sfixed64 = 5;
+  map<bool, bool> field_bool = 6;
 }

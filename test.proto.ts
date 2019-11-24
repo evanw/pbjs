@@ -350,98 +350,98 @@ export function encodeRepeatedUnpacked(message: RepeatedUnpacked): Uint8Array {
   // repeated int32 field_int32 = 1;
   let array$field_int32 = message.field_int32;
   if (array$field_int32 !== undefined) {
-    for (const $field_int32 of array$field_int32) {
+    for (let value of array$field_int32) {
       writeVarint32(bb, 8);
-      writeVarint64(bb, intToLong($field_int32));
+      writeVarint64(bb, intToLong(value));
     }
   }
 
   // repeated int64 field_int64 = 2;
   let array$field_int64 = message.field_int64;
   if (array$field_int64 !== undefined) {
-    for (const $field_int64 of array$field_int64) {
+    for (let value of array$field_int64) {
       writeVarint32(bb, 16);
-      writeVarint64(bb, $field_int64);
+      writeVarint64(bb, value);
     }
   }
 
   // repeated uint32 field_uint32 = 3;
   let array$field_uint32 = message.field_uint32;
   if (array$field_uint32 !== undefined) {
-    for (const $field_uint32 of array$field_uint32) {
+    for (let value of array$field_uint32) {
       writeVarint32(bb, 24);
-      writeVarint32(bb, $field_uint32);
+      writeVarint32(bb, value);
     }
   }
 
   // repeated uint64 field_uint64 = 4;
   let array$field_uint64 = message.field_uint64;
   if (array$field_uint64 !== undefined) {
-    for (const $field_uint64 of array$field_uint64) {
+    for (let value of array$field_uint64) {
       writeVarint32(bb, 32);
-      writeVarint64(bb, $field_uint64);
+      writeVarint64(bb, value);
     }
   }
 
   // repeated sint32 field_sint32 = 5;
   let array$field_sint32 = message.field_sint32;
   if (array$field_sint32 !== undefined) {
-    for (const $field_sint32 of array$field_sint32) {
+    for (let value of array$field_sint32) {
       writeVarint32(bb, 40);
-      writeVarint32ZigZag(bb, $field_sint32);
+      writeVarint32ZigZag(bb, value);
     }
   }
 
   // repeated sint64 field_sint64 = 6;
   let array$field_sint64 = message.field_sint64;
   if (array$field_sint64 !== undefined) {
-    for (const $field_sint64 of array$field_sint64) {
+    for (let value of array$field_sint64) {
       writeVarint32(bb, 48);
-      writeVarint64ZigZag(bb, $field_sint64);
+      writeVarint64ZigZag(bb, value);
     }
   }
 
   // repeated bool field_bool = 7;
   let array$field_bool = message.field_bool;
   if (array$field_bool !== undefined) {
-    for (const $field_bool of array$field_bool) {
+    for (let value of array$field_bool) {
       writeVarint32(bb, 56);
-      writeByte(bb, $field_bool ? 1 : 0);
+      writeByte(bb, value ? 1 : 0);
     }
   }
 
   // repeated fixed64 field_fixed64 = 8;
   let array$field_fixed64 = message.field_fixed64;
   if (array$field_fixed64 !== undefined) {
-    for (const $field_fixed64 of array$field_fixed64) {
+    for (let value of array$field_fixed64) {
       writeVarint32(bb, 65);
-      writeInt64(bb, $field_fixed64);
+      writeInt64(bb, value);
     }
   }
 
   // repeated sfixed64 field_sfixed64 = 9;
   let array$field_sfixed64 = message.field_sfixed64;
   if (array$field_sfixed64 !== undefined) {
-    for (const $field_sfixed64 of array$field_sfixed64) {
+    for (let value of array$field_sfixed64) {
       writeVarint32(bb, 73);
-      writeInt64(bb, $field_sfixed64);
+      writeInt64(bb, value);
     }
   }
 
   // repeated double field_double = 10;
   let array$field_double = message.field_double;
   if (array$field_double !== undefined) {
-    for (const $field_double of array$field_double) {
+    for (let value of array$field_double) {
       writeVarint32(bb, 81);
-      writeDouble(bb, $field_double);
+      writeDouble(bb, value);
     }
   }
 
   // repeated string field_string = 11;
   let array$field_string = message.field_string;
   if (array$field_string !== undefined) {
-    for (const $field_string of array$field_string) {
-      let nested = utf8Encoder.encode($field_string);
+    for (let value of array$field_string) {
+      let nested = utf8Encoder.encode(value);
       writeVarint32(bb, 90);
       writeVarint32(bb, nested.length), writeBytes(bb, nested);
     }
@@ -450,44 +450,44 @@ export function encodeRepeatedUnpacked(message: RepeatedUnpacked): Uint8Array {
   // repeated bytes field_bytes = 12;
   let array$field_bytes = message.field_bytes;
   if (array$field_bytes !== undefined) {
-    for (const $field_bytes of array$field_bytes) {
+    for (let value of array$field_bytes) {
       writeVarint32(bb, 98);
-      writeVarint32(bb, $field_bytes.length), writeBytes(bb, $field_bytes);
+      writeVarint32(bb, value.length), writeBytes(bb, value);
     }
   }
 
   // repeated fixed32 field_fixed32 = 13;
   let array$field_fixed32 = message.field_fixed32;
   if (array$field_fixed32 !== undefined) {
-    for (const $field_fixed32 of array$field_fixed32) {
+    for (let value of array$field_fixed32) {
       writeVarint32(bb, 109);
-      writeInt32(bb, $field_fixed32);
+      writeInt32(bb, value);
     }
   }
 
   // repeated sfixed32 field_sfixed32 = 14;
   let array$field_sfixed32 = message.field_sfixed32;
   if (array$field_sfixed32 !== undefined) {
-    for (const $field_sfixed32 of array$field_sfixed32) {
+    for (let value of array$field_sfixed32) {
       writeVarint32(bb, 117);
-      writeInt32(bb, $field_sfixed32);
+      writeInt32(bb, value);
     }
   }
 
   // repeated float field_float = 15;
   let array$field_float = message.field_float;
   if (array$field_float !== undefined) {
-    for (const $field_float of array$field_float) {
+    for (let value of array$field_float) {
       writeVarint32(bb, 125);
-      writeFloat(bb, $field_float);
+      writeFloat(bb, value);
     }
   }
 
   // repeated Nested field_nested = 16;
   let array$field_nested = message.field_nested;
   if (array$field_nested !== undefined) {
-    for (const $field_nested of array$field_nested) {
-      let nested = encodeNested($field_nested);
+    for (let value of array$field_nested) {
+      let nested = encodeNested(value);
       writeVarint32(bb, 130);
       writeVarint32(bb, nested.length), writeBytes(bb, nested);
     }
@@ -759,8 +759,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   let array$field_int32 = message.field_int32;
   if (array$field_int32 !== undefined) {
     let packed = newByteBuffer();
-    for (const $field_int32 of array$field_int32) {
-      writeVarint64(packed, intToLong($field_int32));
+    for (let value of array$field_int32) {
+      writeVarint64(packed, intToLong(value));
     }
     writeVarint32(bb, 10);
     writeVarint32(bb, packed.offset);
@@ -771,8 +771,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   let array$field_int64 = message.field_int64;
   if (array$field_int64 !== undefined) {
     let packed = newByteBuffer();
-    for (const $field_int64 of array$field_int64) {
-      writeVarint64(packed, $field_int64);
+    for (let value of array$field_int64) {
+      writeVarint64(packed, value);
     }
     writeVarint32(bb, 18);
     writeVarint32(bb, packed.offset);
@@ -783,8 +783,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   let array$field_uint32 = message.field_uint32;
   if (array$field_uint32 !== undefined) {
     let packed = newByteBuffer();
-    for (const $field_uint32 of array$field_uint32) {
-      writeVarint32(packed, $field_uint32);
+    for (let value of array$field_uint32) {
+      writeVarint32(packed, value);
     }
     writeVarint32(bb, 26);
     writeVarint32(bb, packed.offset);
@@ -795,8 +795,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   let array$field_uint64 = message.field_uint64;
   if (array$field_uint64 !== undefined) {
     let packed = newByteBuffer();
-    for (const $field_uint64 of array$field_uint64) {
-      writeVarint64(packed, $field_uint64);
+    for (let value of array$field_uint64) {
+      writeVarint64(packed, value);
     }
     writeVarint32(bb, 34);
     writeVarint32(bb, packed.offset);
@@ -807,8 +807,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   let array$field_sint32 = message.field_sint32;
   if (array$field_sint32 !== undefined) {
     let packed = newByteBuffer();
-    for (const $field_sint32 of array$field_sint32) {
-      writeVarint32ZigZag(packed, $field_sint32);
+    for (let value of array$field_sint32) {
+      writeVarint32ZigZag(packed, value);
     }
     writeVarint32(bb, 42);
     writeVarint32(bb, packed.offset);
@@ -819,8 +819,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   let array$field_sint64 = message.field_sint64;
   if (array$field_sint64 !== undefined) {
     let packed = newByteBuffer();
-    for (const $field_sint64 of array$field_sint64) {
-      writeVarint64ZigZag(packed, $field_sint64);
+    for (let value of array$field_sint64) {
+      writeVarint64ZigZag(packed, value);
     }
     writeVarint32(bb, 50);
     writeVarint32(bb, packed.offset);
@@ -831,8 +831,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   let array$field_bool = message.field_bool;
   if (array$field_bool !== undefined) {
     let packed = newByteBuffer();
-    for (const $field_bool of array$field_bool) {
-      writeByte(packed, $field_bool ? 1 : 0);
+    for (let value of array$field_bool) {
+      writeByte(packed, value ? 1 : 0);
     }
     writeVarint32(bb, 58);
     writeVarint32(bb, packed.offset);
@@ -843,8 +843,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   let array$field_fixed64 = message.field_fixed64;
   if (array$field_fixed64 !== undefined) {
     let packed = newByteBuffer();
-    for (const $field_fixed64 of array$field_fixed64) {
-      writeInt64(packed, $field_fixed64);
+    for (let value of array$field_fixed64) {
+      writeInt64(packed, value);
     }
     writeVarint32(bb, 66);
     writeVarint32(bb, packed.offset);
@@ -855,8 +855,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   let array$field_sfixed64 = message.field_sfixed64;
   if (array$field_sfixed64 !== undefined) {
     let packed = newByteBuffer();
-    for (const $field_sfixed64 of array$field_sfixed64) {
-      writeInt64(packed, $field_sfixed64);
+    for (let value of array$field_sfixed64) {
+      writeInt64(packed, value);
     }
     writeVarint32(bb, 74);
     writeVarint32(bb, packed.offset);
@@ -867,8 +867,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   let array$field_double = message.field_double;
   if (array$field_double !== undefined) {
     let packed = newByteBuffer();
-    for (const $field_double of array$field_double) {
-      writeDouble(packed, $field_double);
+    for (let value of array$field_double) {
+      writeDouble(packed, value);
     }
     writeVarint32(bb, 82);
     writeVarint32(bb, packed.offset);
@@ -878,8 +878,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   // repeated string field_string = 11;
   let array$field_string = message.field_string;
   if (array$field_string !== undefined) {
-    for (const $field_string of array$field_string) {
-      let nested = utf8Encoder.encode($field_string);
+    for (let value of array$field_string) {
+      let nested = utf8Encoder.encode(value);
       writeVarint32(bb, 90);
       writeVarint32(bb, nested.length), writeBytes(bb, nested);
     }
@@ -888,9 +888,9 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   // repeated bytes field_bytes = 12;
   let array$field_bytes = message.field_bytes;
   if (array$field_bytes !== undefined) {
-    for (const $field_bytes of array$field_bytes) {
+    for (let value of array$field_bytes) {
       writeVarint32(bb, 98);
-      writeVarint32(bb, $field_bytes.length), writeBytes(bb, $field_bytes);
+      writeVarint32(bb, value.length), writeBytes(bb, value);
     }
   }
 
@@ -898,8 +898,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   let array$field_fixed32 = message.field_fixed32;
   if (array$field_fixed32 !== undefined) {
     let packed = newByteBuffer();
-    for (const $field_fixed32 of array$field_fixed32) {
-      writeInt32(packed, $field_fixed32);
+    for (let value of array$field_fixed32) {
+      writeInt32(packed, value);
     }
     writeVarint32(bb, 106);
     writeVarint32(bb, packed.offset);
@@ -910,8 +910,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   let array$field_sfixed32 = message.field_sfixed32;
   if (array$field_sfixed32 !== undefined) {
     let packed = newByteBuffer();
-    for (const $field_sfixed32 of array$field_sfixed32) {
-      writeInt32(packed, $field_sfixed32);
+    for (let value of array$field_sfixed32) {
+      writeInt32(packed, value);
     }
     writeVarint32(bb, 114);
     writeVarint32(bb, packed.offset);
@@ -922,8 +922,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   let array$field_float = message.field_float;
   if (array$field_float !== undefined) {
     let packed = newByteBuffer();
-    for (const $field_float of array$field_float) {
-      writeFloat(packed, $field_float);
+    for (let value of array$field_float) {
+      writeFloat(packed, value);
     }
     writeVarint32(bb, 122);
     writeVarint32(bb, packed.offset);
@@ -933,8 +933,8 @@ export function encodeRepeatedPacked(message: RepeatedPacked): Uint8Array {
   // repeated Nested field_nested = 16;
   let array$field_nested = message.field_nested;
   if (array$field_nested !== undefined) {
-    for (const $field_nested of array$field_nested) {
-      let nested = encodeNested($field_nested);
+    for (let value of array$field_nested) {
+      let nested = encodeNested(value);
       writeVarint32(bb, 130);
       writeVarint32(bb, nested.length), writeBytes(bb, nested);
     }
@@ -1207,8 +1207,8 @@ export function encodeEnumTest(message: EnumTest): Uint8Array {
   let array$c = message.c;
   if (array$c !== undefined) {
     let packed = newByteBuffer();
-    for (const $c of array$c) {
-      writeVarint32(packed, encodeEnum[$c]);
+    for (let value of array$c) {
+      writeVarint32(packed, encodeEnum[value]);
     }
     writeVarint32(bb, 26);
     writeVarint32(bb, packed.offset);
@@ -1267,6 +1267,603 @@ export function decodeEnumTest(binary: ByteBuffer | Uint8Array): EnumTest {
   return message;
 }
 
+export interface MapTestIntAndString {
+  field_int32?: { [key: number]: boolean };
+  field_uint32?: { [key: number]: boolean };
+  field_sint32?: { [key: number]: boolean };
+  field_string?: { [key: string]: boolean };
+  field_fixed32?: { [key: number]: boolean };
+  field_sfixed32?: { [key: number]: boolean };
+}
+
+export function encodeMapTestIntAndString(message: MapTestIntAndString): Uint8Array {
+  let bb = newByteBuffer();
+
+  // optional map<int32, bool> field_int32 = 1;
+  let map$field_int32 = message.field_int32;
+  if (map$field_int32 !== undefined) {
+    for (let key in map$field_int32) {
+      let nested = newByteBuffer();
+      let value = map$field_int32[key];
+      writeVarint32(nested, 8);
+      writeVarint64(nested, intToLong(+key));
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 10);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<uint32, bool> field_uint32 = 2;
+  let map$field_uint32 = message.field_uint32;
+  if (map$field_uint32 !== undefined) {
+    for (let key in map$field_uint32) {
+      let nested = newByteBuffer();
+      let value = map$field_uint32[key];
+      writeVarint32(nested, 8);
+      writeVarint32(nested, +key);
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 18);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<sint32, bool> field_sint32 = 3;
+  let map$field_sint32 = message.field_sint32;
+  if (map$field_sint32 !== undefined) {
+    for (let key in map$field_sint32) {
+      let nested = newByteBuffer();
+      let value = map$field_sint32[key];
+      writeVarint32(nested, 8);
+      writeVarint32ZigZag(nested, +key);
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 26);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<string, bool> field_string = 5;
+  let map$field_string = message.field_string;
+  if (map$field_string !== undefined) {
+    for (let key in map$field_string) {
+      let nested = newByteBuffer();
+      let value = map$field_string[key];
+      let nestedKey = utf8Encoder.encode(key);
+      writeVarint32(nested, 10);
+      writeVarint32(nested, nestedKey.length), writeBytes(nested, nestedKey);
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 42);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<fixed32, bool> field_fixed32 = 6;
+  let map$field_fixed32 = message.field_fixed32;
+  if (map$field_fixed32 !== undefined) {
+    for (let key in map$field_fixed32) {
+      let nested = newByteBuffer();
+      let value = map$field_fixed32[key];
+      writeVarint32(nested, 13);
+      writeInt32(nested, +key);
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 50);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<sfixed32, bool> field_sfixed32 = 7;
+  let map$field_sfixed32 = message.field_sfixed32;
+  if (map$field_sfixed32 !== undefined) {
+    for (let key in map$field_sfixed32) {
+      let nested = newByteBuffer();
+      let value = map$field_sfixed32[key];
+      writeVarint32(nested, 13);
+      writeInt32(nested, +key);
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 58);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  return toUint8Array(bb);
+}
+
+export function decodeMapTestIntAndString(binary: ByteBuffer | Uint8Array): MapTestIntAndString {
+  let message: MapTestIntAndString = {} as any;
+  let bb = binary instanceof Uint8Array ? newByteBuffer(binary) : binary;
+
+  end_of_message: while (!isAtEnd(bb)) {
+    let tag = readVarint32(bb);
+
+    switch (tag >>> 3) {
+      case 0:
+        break end_of_message;
+
+      // optional map<int32, bool> field_int32 = 1;
+      case 1: {
+        let values = message.field_int32 || (message.field_int32 = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: number | undefined;
+        let value: boolean | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readVarint32(bb);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_int32");
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<uint32, bool> field_uint32 = 2;
+      case 2: {
+        let values = message.field_uint32 || (message.field_uint32 = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: number | undefined;
+        let value: boolean | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readVarint32(bb) >>> 0;
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_uint32");
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<sint32, bool> field_sint32 = 3;
+      case 3: {
+        let values = message.field_sint32 || (message.field_sint32 = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: number | undefined;
+        let value: boolean | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readVarint32ZigZag(bb);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_sint32");
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<string, bool> field_string = 5;
+      case 5: {
+        let values = message.field_string || (message.field_string = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: string | undefined;
+        let value: boolean | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = utf8Decoder.decode(readBytes(bb, readVarint32(bb)));
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_string");
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<fixed32, bool> field_fixed32 = 6;
+      case 6: {
+        let values = message.field_fixed32 || (message.field_fixed32 = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: number | undefined;
+        let value: boolean | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readInt32(bb) >>> 0;
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_fixed32");
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<sfixed32, bool> field_sfixed32 = 7;
+      case 7: {
+        let values = message.field_sfixed32 || (message.field_sfixed32 = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: number | undefined;
+        let value: boolean | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readInt32(bb);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_sfixed32");
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      default:
+        skipUnknownField(bb, tag & 7);
+    }
+  }
+
+  return message;
+}
+
+export interface MapTestLongAndBool {
+  field_int64?: { [key: string]: boolean };
+  field_uint64?: { [key: string]: boolean };
+  field_sint64?: { [key: string]: boolean };
+  field_fixed64?: { [key: string]: boolean };
+  field_sfixed64?: { [key: string]: boolean };
+  field_bool?: { [key: string]: boolean };
+}
+
+export function encodeMapTestLongAndBool(message: MapTestLongAndBool): Uint8Array {
+  let bb = newByteBuffer();
+
+  // optional map<int64, bool> field_int64 = 1;
+  let map$field_int64 = message.field_int64;
+  if (map$field_int64 !== undefined) {
+    for (let key in map$field_int64) {
+      let nested = newByteBuffer();
+      let value = map$field_int64[key];
+      writeVarint32(nested, 8);
+      writeVarint64(nested, stringToLong(key));
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 10);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<uint64, bool> field_uint64 = 2;
+  let map$field_uint64 = message.field_uint64;
+  if (map$field_uint64 !== undefined) {
+    for (let key in map$field_uint64) {
+      let nested = newByteBuffer();
+      let value = map$field_uint64[key];
+      writeVarint32(nested, 8);
+      writeVarint64(nested, stringToLong(key));
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 18);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<sint64, bool> field_sint64 = 3;
+  let map$field_sint64 = message.field_sint64;
+  if (map$field_sint64 !== undefined) {
+    for (let key in map$field_sint64) {
+      let nested = newByteBuffer();
+      let value = map$field_sint64[key];
+      writeVarint32(nested, 8);
+      writeVarint64ZigZag(nested, stringToLong(key));
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 26);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<fixed64, bool> field_fixed64 = 4;
+  let map$field_fixed64 = message.field_fixed64;
+  if (map$field_fixed64 !== undefined) {
+    for (let key in map$field_fixed64) {
+      let nested = newByteBuffer();
+      let value = map$field_fixed64[key];
+      writeVarint32(nested, 9);
+      writeInt64(nested, stringToLong(key));
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 34);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<sfixed64, bool> field_sfixed64 = 5;
+  let map$field_sfixed64 = message.field_sfixed64;
+  if (map$field_sfixed64 !== undefined) {
+    for (let key in map$field_sfixed64) {
+      let nested = newByteBuffer();
+      let value = map$field_sfixed64[key];
+      writeVarint32(nested, 9);
+      writeInt64(nested, stringToLong(key));
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 42);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<bool, bool> field_bool = 6;
+  let map$field_bool = message.field_bool;
+  if (map$field_bool !== undefined) {
+    for (let key in map$field_bool) {
+      let nested = newByteBuffer();
+      let value = map$field_bool[key];
+      writeVarint32(nested, 8);
+      writeByte(nested, key === "true" ? 1 : 0);
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 50);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  return toUint8Array(bb);
+}
+
+export function decodeMapTestLongAndBool(binary: ByteBuffer | Uint8Array): MapTestLongAndBool {
+  let message: MapTestLongAndBool = {} as any;
+  let bb = binary instanceof Uint8Array ? newByteBuffer(binary) : binary;
+
+  end_of_message: while (!isAtEnd(bb)) {
+    let tag = readVarint32(bb);
+
+    switch (tag >>> 3) {
+      case 0:
+        break end_of_message;
+
+      // optional map<int64, bool> field_int64 = 1;
+      case 1: {
+        let values = message.field_int64 || (message.field_int64 = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: Long | undefined;
+        let value: boolean | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readVarint64(bb, /* unsigned */ false);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_int64");
+        values[longToString(key)] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<uint64, bool> field_uint64 = 2;
+      case 2: {
+        let values = message.field_uint64 || (message.field_uint64 = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: Long | undefined;
+        let value: boolean | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readVarint64(bb, /* unsigned */ true);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_uint64");
+        values[longToString(key)] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<sint64, bool> field_sint64 = 3;
+      case 3: {
+        let values = message.field_sint64 || (message.field_sint64 = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: Long | undefined;
+        let value: boolean | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readVarint64ZigZag(bb);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_sint64");
+        values[longToString(key)] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<fixed64, bool> field_fixed64 = 4;
+      case 4: {
+        let values = message.field_fixed64 || (message.field_fixed64 = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: Long | undefined;
+        let value: boolean | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readInt64(bb, /* unsigned */ true);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_fixed64");
+        values[longToString(key)] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<sfixed64, bool> field_sfixed64 = 5;
+      case 5: {
+        let values = message.field_sfixed64 || (message.field_sfixed64 = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: Long | undefined;
+        let value: boolean | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readInt64(bb, /* unsigned */ false);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_sfixed64");
+        values[longToString(key)] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<bool, bool> field_bool = 6;
+      case 6: {
+        let values = message.field_bool || (message.field_bool = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: boolean | undefined;
+        let value: boolean | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = !!readByte(bb);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_bool");
+        values[key + ''] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      default:
+        skipUnknownField(bb, tag & 7);
+    }
+  }
+
+  return message;
+}
+
 interface Long {
   low: number;
   high: number;
@@ -1294,6 +1891,24 @@ function skipUnknownField(bb: ByteBuffer, type: number): void {
     case 1: skip(bb, 8); break;
     default: throw new Error("Unimplemented type: " + type);
   }
+}
+
+function stringToLong(value: string): Long {
+  return {
+    low: value.charCodeAt(0) | (value.charCodeAt(1) << 16),
+    high: value.charCodeAt(2) | (value.charCodeAt(3) << 16),
+    unsigned: false,
+  };
+}
+
+function longToString(value: Long): string {
+  let low = value.low;
+  let high = value.high;
+  return String.fromCharCode(
+    low & 0xFFFF,
+    low >>> 16,
+    high & 0xFFFF,
+    high >>> 16);
 }
 
 // The code below was modified from https://github.com/protobufjs/bytebuffer.js

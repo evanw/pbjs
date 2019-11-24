@@ -102,43 +102,39 @@ export function generate(schema: Schema, options?: Options): string {
     return es6 ? `export function ${name}` : `${pkg}.${name} = function `;
   }
 
+  const protoToType: { [type: string]: string } = {
+    bool: 'boolean',
+    bytes: 'Uint8Array',
+
+    double: 'number',
+    fixed32: 'number',
+    float: 'number',
+    int32: 'number',
+    sfixed32: 'number',
+    sint32: 'number',
+    uint32: 'number',
+
+    fixed64: 'Long',
+    int64: 'Long',
+    sfixed64: 'Long',
+    sint64: 'Long',
+    uint64: 'Long',
+  }
+
   for (const def of schema.messages) {
     if (typescript) {
       lines.push(`export interface ${def.name} {`);
 
       for (const field of def.fields) {
-        let type: string;
+        let type = protoToType[field.type] || field.type;
 
-        switch (field.type) {
-          case 'bool':
-            type = 'boolean';
-            break;
-
-          case 'bytes':
-            type = 'Uint8Array';
-            break;
-
-          case 'double':
-          case 'fixed32':
-          case 'float':
-          case 'int32':
-          case 'sfixed32':
-          case 'sint32':
-          case 'uint32':
-            type = 'number';
-            break;
-
-          case 'fixed64':
-          case 'int64':
-          case 'sfixed64':
-          case 'sint64':
-          case 'uint64':
-            type = 'Long';
-            break;
-
-          default:
-            type = field.type;
-            break;
+        if (field.map !== null) {
+          let { from, to } = field.map;
+          if (from === 'bool' || from === 'string') from = 'string';
+          else if (protoToType[from] === 'number') from = 'number';
+          else if (protoToType[from] === 'Long') from = 'string';
+          else throw new Error(`The type ${from} cannot be used as a map key`);
+          type = `{ [key: ${from}]: ${protoToType[to] || to} }`;
         }
 
         const required = field.required ? '' : '?';
@@ -154,18 +150,12 @@ export function generate(schema: Schema, options?: Options): string {
     lines.push(`  ${varOrLet} bb = newByteBuffer();`);
     lines.push(``);
 
-    for (const field of def.fields) {
-      const isPacked = field.repeated && field.options.packed !== 'false' && field.type in packableTypes;
-      const buffer = isPacked ? 'packed' : 'bb';
-      const modifier = field.repeated ? 'repeated ' : field.required ? 'required ' : 'optional ';
-      const value = `$${field.name}`;
-      let type = 0;
-      let write = null;
-      let before = null;
+    function encodeValue(name: string, buffer: string, value: string, nested = 'nested') {
+      let type: number;
+      let write: string;
+      let before: string | null = null;
 
-      lines.push(`  // ${modifier}${field.type} ${field.name} = ${field.tag};`);
-
-      switch (field.type) {
+      switch (name) {
         case 'bool': type = TYPE_VAR_INT; write = `writeByte(${buffer}, ${value} ? 1 : 0)`; break;
         case 'bytes': type = TYPE_SIZE_N; write = `writeVarint32(${buffer}, ${value}.length), writeBytes(${buffer}, ${value})`; break;
         case 'double': type = TYPE_SIZE_8; write = `writeDouble(${buffer}, ${value})`; break;
@@ -183,36 +173,74 @@ export function generate(schema: Schema, options?: Options): string {
 
         case 'string': {
           type = TYPE_SIZE_N;
-          before = `${varOrLet} nested = utf8Encoder.encode(${value})`;
-          write = `writeVarint32(${buffer}, nested.length), writeBytes(${buffer}, nested)`;
+          before = `${varOrLet} ${nested} = utf8Encoder.encode(${value})`;
+          write = `writeVarint32(${buffer}, ${nested}.length), writeBytes(${buffer}, ${nested})`;
           break;
         }
 
         default: {
-          if (field.type in enums) {
+          if (name in enums) {
             type = TYPE_VAR_INT;
-            write = `writeVarint32(${buffer}, ${prefix}encode${field.type}[${value}])`;
+            write = `writeVarint32(${buffer}, ${prefix}encode${name}[${value}])`;
           } else {
             type = TYPE_SIZE_N;
-            before = `${varOrLet} nested = ${prefix}encode${field.type}(${value})`;
-            write = `writeVarint32(${buffer}, nested.length), writeBytes(${buffer}, nested)`;
+            before = `${varOrLet} ${nested} = ${prefix}encode${name}(${value})`;
+            write = `writeVarint32(${buffer}, ${nested}.length), writeBytes(${buffer}, ${nested})`;
           }
           break;
         }
       }
 
-      if (field.repeated) {
-        const array = `array$${field.name}`;
-        lines.push(`  ${varOrLet} ${array} = message.${field.name};`);
-        lines.push(`  if (${array} !== undefined) {`);
+      return { type, write, before };
+    }
 
-        if (isPacked) {
+    for (const field of def.fields) {
+      const isPacked = field.repeated && field.options.packed !== 'false' && field.type in packableTypes;
+      const modifier = field.repeated ? 'repeated ' : field.required ? 'required ' : 'optional ';
+
+      let humanType = field.type;
+      if (field.map !== null) humanType += `<${field.map.from}, ${field.map.to}>`;
+      lines.push(`  // ${modifier}${humanType} ${field.name} = ${field.tag};`);
+
+      if (field.repeated || field.map !== null) {
+        const collection = `${field.repeated ? 'array' : 'map'}$${field.name}`;
+        lines.push(`  ${varOrLet} ${collection} = message.${field.name};`);
+        lines.push(`  if (${collection} !== undefined) {`);
+
+        if (field.map !== null) {
+          let { from, to } = field.map;
+          let keyValue = 'key';
+
+          if (from === 'bool') keyValue = 'key === "true"';
+          else if (protoToType[from] === 'number') keyValue = '+key';
+          else if (protoToType[from] === 'Long') keyValue = 'stringToLong(key)';
+
+          const key = encodeValue(from, 'nested', keyValue, 'nestedKey');
+          const value = encodeValue(to, 'nested', 'value', 'nestedValue');
+
+          lines.push(`    for (${varOrLet} key in ${collection}) {`);
+          lines.push(`      ${varOrLet} nested = newByteBuffer();`);
+          lines.push(`      ${varOrLet} value = ${collection}[key];`);
+          if (key.before) lines.push(`      ${key.before};`);
+          if (value.before) lines.push(`      ${value.before};`);
+          lines.push(`      writeVarint32(nested, ${(1 << 3) | key.type});`);
+          lines.push(`      ${key.write};`);
+          lines.push(`      writeVarint32(nested, ${(2 << 3) | value.type});`);
+          lines.push(`      ${value.write};`);
+          lines.push(`      writeVarint32(bb, ${(field.tag << 3) | TYPE_SIZE_N});`);
+          lines.push(`      writeVarint32(bb, nested.offset);`);
+          lines.push(`      writeBytes(bb, toUint8Array(nested));`);
+          lines.push(`    }`);
+        }
+
+        else if (isPacked) {
+          const { write, before } = encodeValue(field.type, 'packed', 'value');
           lines.push(`    ${varOrLet} packed = newByteBuffer();`);
           if (es6) {
-            lines.push(`    for (const ${value} of ${array}) {`);
+            lines.push(`    for (let value of ${collection}) {`);
           } else {
-            lines.push(`    for (var i = 0; i < ${array}.length; i++) {`);
-            lines.push(`      var ${value} = ${array}[i];`);
+            lines.push(`    for (var i = 0; i < ${collection}.length; i++) {`);
+            lines.push(`      var value = ${collection}[i];`);
           }
           if (before) lines.push(`      ${before};`);
           lines.push(`      ${write};`);
@@ -223,11 +251,12 @@ export function generate(schema: Schema, options?: Options): string {
         }
 
         else {
+          const { type, write, before } = encodeValue(field.type, 'bb', 'value');
           if (es6) {
-            lines.push(`    for (const ${value} of ${array}) {`);
+            lines.push(`    for (let value of ${collection}) {`);
           } else {
-            lines.push(`    for (var i = 0; i < ${array}.length; i++) {`);
-            lines.push(`      var ${value} = ${array}[i];`);
+            lines.push(`    for (var i = 0; i < ${collection}.length; i++) {`);
+            lines.push(`      var value = ${collection}[i];`);
           }
           if (before) lines.push(`      ${before};`);
           lines.push(`      writeVarint32(bb, ${(field.tag << 3) | type});`);
@@ -240,6 +269,8 @@ export function generate(schema: Schema, options?: Options): string {
       }
 
       else {
+        const value = `$${field.name}`;
+        const { type, write, before } = encodeValue(field.type, 'bb', value);
         lines.push(`  ${varOrLet} ${value} = message.${field.name};`);
         lines.push(`  if (${value} !== undefined) {`);
         lines.push(`    writeVarint32(bb, ${(field.tag << 3) | type});`);
@@ -266,15 +297,11 @@ export function generate(schema: Schema, options?: Options): string {
     lines.push(`        break end_of_message;`);
     lines.push(``);
 
-    for (const field of def.fields) {
-      const modifier = field.repeated ? 'repeated ' : field.required ? 'required ' : 'optional ';
-      let read = null;
-      let after = null;
+    function decodeValue(name: string, limit = 'limit') {
+      let read: string;
+      let after: string | null = null;
 
-      lines.push(`      // ${modifier}${field.type} ${field.name} = ${field.tag};`);
-      lines.push(`      case ${field.tag}: {`);
-
-      switch (field.type) {
+      switch (name) {
         case 'bool': read = `!!readByte(bb)`; break;
         case 'bytes': read = `readBytes(bb, readVarint32(bb))`; break;
         case 'double': read = `readDouble(bb)`; break;
@@ -292,18 +319,63 @@ export function generate(schema: Schema, options?: Options): string {
         case 'uint64': read = `readVarint64(bb, /* unsigned */ true)`; break;
 
         default: {
-          if (field.type in enums) {
-            read = `${prefix}decode${field.type}[readVarint32(bb)]`;
+          if (name in enums) {
+            read = `${prefix}decode${name}[readVarint32(bb)]`;
           } else {
-            lines.push(`        ${varOrLet} limit = pushTemporaryLength(bb);`);
-            read = `${prefix}decode${field.type}(bb)`;
-            after = 'bb.limit = limit';
+            lines.push(`        ${varOrLet} ${limit} = pushTemporaryLength(bb);`);
+            read = `${prefix}decode${name}(bb)`;
+            after = `bb.limit = ${limit}`;
           }
           break;
         }
       }
 
-      if (field.repeated) {
+      return { read, after };
+    }
+
+    for (const field of def.fields) {
+      const modifier = field.repeated ? 'repeated ' : field.required ? 'required ' : 'optional ';
+
+      let humanType = field.type;
+      if (field.map !== null) humanType += `<${field.map.from}, ${field.map.to}>`;
+      lines.push(`      // ${modifier}${humanType} ${field.name} = ${field.tag};`);
+      lines.push(`      case ${field.tag}: {`);
+
+      if (field.map !== null) {
+        const { from, to } = field.map;
+        const key = decodeValue(from, 'keyLimit');
+        const value = decodeValue(to, 'valueLimit');
+        lines.push(`        ${varOrLet} values = message.${field.name} || (message.${field.name} = {});`);
+        lines.push(`        ${varOrLet} outerLimit = pushTemporaryLength(bb);`);
+        lines.push(`        ${varOrLet} key${ts(`${protoToType[from] || from} | undefined`)};`);
+        lines.push(`        ${varOrLet} value${ts(`${protoToType[to] || to} | undefined`)};`);
+        lines.push(`        end_of_entry: while (!isAtEnd(bb)) {`);
+        lines.push(`          ${varOrLet} tag = readVarint32(bb);`);
+        lines.push(`          switch (tag >>> 3) {`);
+        lines.push(`            case 0:`);
+        lines.push(`              break end_of_entry;`);
+        lines.push(`            case 1:`);
+        lines.push(`              key = ${key.read};`);
+        if (key.after) lines.push(`              ${key.after};`);
+        lines.push(`              break;`);
+        lines.push(`            case 2:`);
+        lines.push(`              value = ${value.read};`);
+        if (value.after) lines.push(`              ${value.after};`);
+        lines.push(`              break;`);
+        lines.push(`            default:`);
+        lines.push(`              skipUnknownField(bb, tag & 7);`);
+        lines.push(`          }`);
+        lines.push(`        }`);
+        lines.push(`        if (key === undefined || value === undefined)`);
+        lines.push(`          throw new Error(${quote(`Invalid data for map: ${field.name}`)});`);
+        if (from === 'bool') lines.push(`        values[key + ''] = value;`);
+        else if (protoToType[from] === 'Long') lines.push(`        values[longToString(key)] = value;`);
+        else lines.push(`        values[key] = value;`);
+        lines.push(`        bb.limit = outerLimit;`);
+      }
+
+      else if (field.repeated) {
+        const { read, after } = decodeValue(field.type);
         lines.push(`        ${varOrLet} values = message.${field.name} || (message.${field.name} = []);`);
 
         // Support both packed and unpacked encodings for primitive types
@@ -328,6 +400,7 @@ export function generate(schema: Schema, options?: Options): string {
       }
 
       else {
+        const { read, after } = decodeValue(field.type);
         lines.push(`        message.${field.name} = ${read};`);
         if (after) lines.push(`        ${after};`);
       }
@@ -387,6 +460,26 @@ export function generate(schema: Schema, options?: Options): string {
   lines.push(`    case ${TYPE_SIZE_8}: skip(bb, 8); break;`);
   lines.push(`    default: throw new Error("Unimplemented type: " + type);`);
   lines.push(`  }`);
+  lines.push(`}`);
+  lines.push(``);
+
+  lines.push(`function stringToLong(value${ts('string')})${ts('Long')} {`);
+  lines.push(`  return {`);
+  lines.push(`    low: value.charCodeAt(0) | (value.charCodeAt(1) << 16),`);
+  lines.push(`    high: value.charCodeAt(2) | (value.charCodeAt(3) << 16),`);
+  lines.push(`    unsigned: false,`);
+  lines.push(`  };`);
+  lines.push(`}`);
+  lines.push(``);
+
+  lines.push(`function longToString(value${ts('Long')})${ts('string')} {`);
+  lines.push(`  ${varOrLet} low = value.low;`);
+  lines.push(`  ${varOrLet} high = value.high;`);
+  lines.push(`  return String.fromCharCode(`);
+  lines.push(`    low & 0xFFFF,`);
+  lines.push(`    low >>> 16,`);
+  lines.push(`    high & 0xFFFF,`);
+  lines.push(`    high >>> 16);`);
   lines.push(`}`);
   lines.push(``);
 

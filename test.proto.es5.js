@@ -303,9 +303,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_int32 = message.field_int32;
   if (array$field_int32 !== undefined) {
     for (var i = 0; i < array$field_int32.length; i++) {
-      var $field_int32 = array$field_int32[i];
+      var value = array$field_int32[i];
       writeVarint32(bb, 8);
-      writeVarint64(bb, intToLong($field_int32));
+      writeVarint64(bb, intToLong(value));
     }
   }
 
@@ -313,9 +313,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_int64 = message.field_int64;
   if (array$field_int64 !== undefined) {
     for (var i = 0; i < array$field_int64.length; i++) {
-      var $field_int64 = array$field_int64[i];
+      var value = array$field_int64[i];
       writeVarint32(bb, 16);
-      writeVarint64(bb, $field_int64);
+      writeVarint64(bb, value);
     }
   }
 
@@ -323,9 +323,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_uint32 = message.field_uint32;
   if (array$field_uint32 !== undefined) {
     for (var i = 0; i < array$field_uint32.length; i++) {
-      var $field_uint32 = array$field_uint32[i];
+      var value = array$field_uint32[i];
       writeVarint32(bb, 24);
-      writeVarint32(bb, $field_uint32);
+      writeVarint32(bb, value);
     }
   }
 
@@ -333,9 +333,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_uint64 = message.field_uint64;
   if (array$field_uint64 !== undefined) {
     for (var i = 0; i < array$field_uint64.length; i++) {
-      var $field_uint64 = array$field_uint64[i];
+      var value = array$field_uint64[i];
       writeVarint32(bb, 32);
-      writeVarint64(bb, $field_uint64);
+      writeVarint64(bb, value);
     }
   }
 
@@ -343,9 +343,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_sint32 = message.field_sint32;
   if (array$field_sint32 !== undefined) {
     for (var i = 0; i < array$field_sint32.length; i++) {
-      var $field_sint32 = array$field_sint32[i];
+      var value = array$field_sint32[i];
       writeVarint32(bb, 40);
-      writeVarint32ZigZag(bb, $field_sint32);
+      writeVarint32ZigZag(bb, value);
     }
   }
 
@@ -353,9 +353,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_sint64 = message.field_sint64;
   if (array$field_sint64 !== undefined) {
     for (var i = 0; i < array$field_sint64.length; i++) {
-      var $field_sint64 = array$field_sint64[i];
+      var value = array$field_sint64[i];
       writeVarint32(bb, 48);
-      writeVarint64ZigZag(bb, $field_sint64);
+      writeVarint64ZigZag(bb, value);
     }
   }
 
@@ -363,9 +363,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_bool = message.field_bool;
   if (array$field_bool !== undefined) {
     for (var i = 0; i < array$field_bool.length; i++) {
-      var $field_bool = array$field_bool[i];
+      var value = array$field_bool[i];
       writeVarint32(bb, 56);
-      writeByte(bb, $field_bool ? 1 : 0);
+      writeByte(bb, value ? 1 : 0);
     }
   }
 
@@ -373,9 +373,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_fixed64 = message.field_fixed64;
   if (array$field_fixed64 !== undefined) {
     for (var i = 0; i < array$field_fixed64.length; i++) {
-      var $field_fixed64 = array$field_fixed64[i];
+      var value = array$field_fixed64[i];
       writeVarint32(bb, 65);
-      writeInt64(bb, $field_fixed64);
+      writeInt64(bb, value);
     }
   }
 
@@ -383,9 +383,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_sfixed64 = message.field_sfixed64;
   if (array$field_sfixed64 !== undefined) {
     for (var i = 0; i < array$field_sfixed64.length; i++) {
-      var $field_sfixed64 = array$field_sfixed64[i];
+      var value = array$field_sfixed64[i];
       writeVarint32(bb, 73);
-      writeInt64(bb, $field_sfixed64);
+      writeInt64(bb, value);
     }
   }
 
@@ -393,9 +393,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_double = message.field_double;
   if (array$field_double !== undefined) {
     for (var i = 0; i < array$field_double.length; i++) {
-      var $field_double = array$field_double[i];
+      var value = array$field_double[i];
       writeVarint32(bb, 81);
-      writeDouble(bb, $field_double);
+      writeDouble(bb, value);
     }
   }
 
@@ -403,8 +403,8 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_string = message.field_string;
   if (array$field_string !== undefined) {
     for (var i = 0; i < array$field_string.length; i++) {
-      var $field_string = array$field_string[i];
-      var nested = utf8Encoder.encode($field_string);
+      var value = array$field_string[i];
+      var nested = utf8Encoder.encode(value);
       writeVarint32(bb, 90);
       writeVarint32(bb, nested.length), writeBytes(bb, nested);
     }
@@ -414,9 +414,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_bytes = message.field_bytes;
   if (array$field_bytes !== undefined) {
     for (var i = 0; i < array$field_bytes.length; i++) {
-      var $field_bytes = array$field_bytes[i];
+      var value = array$field_bytes[i];
       writeVarint32(bb, 98);
-      writeVarint32(bb, $field_bytes.length), writeBytes(bb, $field_bytes);
+      writeVarint32(bb, value.length), writeBytes(bb, value);
     }
   }
 
@@ -424,9 +424,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_fixed32 = message.field_fixed32;
   if (array$field_fixed32 !== undefined) {
     for (var i = 0; i < array$field_fixed32.length; i++) {
-      var $field_fixed32 = array$field_fixed32[i];
+      var value = array$field_fixed32[i];
       writeVarint32(bb, 109);
-      writeInt32(bb, $field_fixed32);
+      writeInt32(bb, value);
     }
   }
 
@@ -434,9 +434,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_sfixed32 = message.field_sfixed32;
   if (array$field_sfixed32 !== undefined) {
     for (var i = 0; i < array$field_sfixed32.length; i++) {
-      var $field_sfixed32 = array$field_sfixed32[i];
+      var value = array$field_sfixed32[i];
       writeVarint32(bb, 117);
-      writeInt32(bb, $field_sfixed32);
+      writeInt32(bb, value);
     }
   }
 
@@ -444,9 +444,9 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_float = message.field_float;
   if (array$field_float !== undefined) {
     for (var i = 0; i < array$field_float.length; i++) {
-      var $field_float = array$field_float[i];
+      var value = array$field_float[i];
       writeVarint32(bb, 125);
-      writeFloat(bb, $field_float);
+      writeFloat(bb, value);
     }
   }
 
@@ -454,8 +454,8 @@ exports.encodeRepeatedUnpacked = function (message) {
   var array$field_nested = message.field_nested;
   if (array$field_nested !== undefined) {
     for (var i = 0; i < array$field_nested.length; i++) {
-      var $field_nested = array$field_nested[i];
-      var nested = exports.encodeNested($field_nested);
+      var value = array$field_nested[i];
+      var nested = exports.encodeNested(value);
       writeVarint32(bb, 130);
       writeVarint32(bb, nested.length), writeBytes(bb, nested);
     }
@@ -709,8 +709,8 @@ exports.encodeRepeatedPacked = function (message) {
   if (array$field_int32 !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$field_int32.length; i++) {
-      var $field_int32 = array$field_int32[i];
-      writeVarint64(packed, intToLong($field_int32));
+      var value = array$field_int32[i];
+      writeVarint64(packed, intToLong(value));
     }
     writeVarint32(bb, 10);
     writeVarint32(bb, packed.offset);
@@ -722,8 +722,8 @@ exports.encodeRepeatedPacked = function (message) {
   if (array$field_int64 !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$field_int64.length; i++) {
-      var $field_int64 = array$field_int64[i];
-      writeVarint64(packed, $field_int64);
+      var value = array$field_int64[i];
+      writeVarint64(packed, value);
     }
     writeVarint32(bb, 18);
     writeVarint32(bb, packed.offset);
@@ -735,8 +735,8 @@ exports.encodeRepeatedPacked = function (message) {
   if (array$field_uint32 !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$field_uint32.length; i++) {
-      var $field_uint32 = array$field_uint32[i];
-      writeVarint32(packed, $field_uint32);
+      var value = array$field_uint32[i];
+      writeVarint32(packed, value);
     }
     writeVarint32(bb, 26);
     writeVarint32(bb, packed.offset);
@@ -748,8 +748,8 @@ exports.encodeRepeatedPacked = function (message) {
   if (array$field_uint64 !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$field_uint64.length; i++) {
-      var $field_uint64 = array$field_uint64[i];
-      writeVarint64(packed, $field_uint64);
+      var value = array$field_uint64[i];
+      writeVarint64(packed, value);
     }
     writeVarint32(bb, 34);
     writeVarint32(bb, packed.offset);
@@ -761,8 +761,8 @@ exports.encodeRepeatedPacked = function (message) {
   if (array$field_sint32 !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$field_sint32.length; i++) {
-      var $field_sint32 = array$field_sint32[i];
-      writeVarint32ZigZag(packed, $field_sint32);
+      var value = array$field_sint32[i];
+      writeVarint32ZigZag(packed, value);
     }
     writeVarint32(bb, 42);
     writeVarint32(bb, packed.offset);
@@ -774,8 +774,8 @@ exports.encodeRepeatedPacked = function (message) {
   if (array$field_sint64 !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$field_sint64.length; i++) {
-      var $field_sint64 = array$field_sint64[i];
-      writeVarint64ZigZag(packed, $field_sint64);
+      var value = array$field_sint64[i];
+      writeVarint64ZigZag(packed, value);
     }
     writeVarint32(bb, 50);
     writeVarint32(bb, packed.offset);
@@ -787,8 +787,8 @@ exports.encodeRepeatedPacked = function (message) {
   if (array$field_bool !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$field_bool.length; i++) {
-      var $field_bool = array$field_bool[i];
-      writeByte(packed, $field_bool ? 1 : 0);
+      var value = array$field_bool[i];
+      writeByte(packed, value ? 1 : 0);
     }
     writeVarint32(bb, 58);
     writeVarint32(bb, packed.offset);
@@ -800,8 +800,8 @@ exports.encodeRepeatedPacked = function (message) {
   if (array$field_fixed64 !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$field_fixed64.length; i++) {
-      var $field_fixed64 = array$field_fixed64[i];
-      writeInt64(packed, $field_fixed64);
+      var value = array$field_fixed64[i];
+      writeInt64(packed, value);
     }
     writeVarint32(bb, 66);
     writeVarint32(bb, packed.offset);
@@ -813,8 +813,8 @@ exports.encodeRepeatedPacked = function (message) {
   if (array$field_sfixed64 !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$field_sfixed64.length; i++) {
-      var $field_sfixed64 = array$field_sfixed64[i];
-      writeInt64(packed, $field_sfixed64);
+      var value = array$field_sfixed64[i];
+      writeInt64(packed, value);
     }
     writeVarint32(bb, 74);
     writeVarint32(bb, packed.offset);
@@ -826,8 +826,8 @@ exports.encodeRepeatedPacked = function (message) {
   if (array$field_double !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$field_double.length; i++) {
-      var $field_double = array$field_double[i];
-      writeDouble(packed, $field_double);
+      var value = array$field_double[i];
+      writeDouble(packed, value);
     }
     writeVarint32(bb, 82);
     writeVarint32(bb, packed.offset);
@@ -838,8 +838,8 @@ exports.encodeRepeatedPacked = function (message) {
   var array$field_string = message.field_string;
   if (array$field_string !== undefined) {
     for (var i = 0; i < array$field_string.length; i++) {
-      var $field_string = array$field_string[i];
-      var nested = utf8Encoder.encode($field_string);
+      var value = array$field_string[i];
+      var nested = utf8Encoder.encode(value);
       writeVarint32(bb, 90);
       writeVarint32(bb, nested.length), writeBytes(bb, nested);
     }
@@ -849,9 +849,9 @@ exports.encodeRepeatedPacked = function (message) {
   var array$field_bytes = message.field_bytes;
   if (array$field_bytes !== undefined) {
     for (var i = 0; i < array$field_bytes.length; i++) {
-      var $field_bytes = array$field_bytes[i];
+      var value = array$field_bytes[i];
       writeVarint32(bb, 98);
-      writeVarint32(bb, $field_bytes.length), writeBytes(bb, $field_bytes);
+      writeVarint32(bb, value.length), writeBytes(bb, value);
     }
   }
 
@@ -860,8 +860,8 @@ exports.encodeRepeatedPacked = function (message) {
   if (array$field_fixed32 !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$field_fixed32.length; i++) {
-      var $field_fixed32 = array$field_fixed32[i];
-      writeInt32(packed, $field_fixed32);
+      var value = array$field_fixed32[i];
+      writeInt32(packed, value);
     }
     writeVarint32(bb, 106);
     writeVarint32(bb, packed.offset);
@@ -873,8 +873,8 @@ exports.encodeRepeatedPacked = function (message) {
   if (array$field_sfixed32 !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$field_sfixed32.length; i++) {
-      var $field_sfixed32 = array$field_sfixed32[i];
-      writeInt32(packed, $field_sfixed32);
+      var value = array$field_sfixed32[i];
+      writeInt32(packed, value);
     }
     writeVarint32(bb, 114);
     writeVarint32(bb, packed.offset);
@@ -886,8 +886,8 @@ exports.encodeRepeatedPacked = function (message) {
   if (array$field_float !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$field_float.length; i++) {
-      var $field_float = array$field_float[i];
-      writeFloat(packed, $field_float);
+      var value = array$field_float[i];
+      writeFloat(packed, value);
     }
     writeVarint32(bb, 122);
     writeVarint32(bb, packed.offset);
@@ -898,8 +898,8 @@ exports.encodeRepeatedPacked = function (message) {
   var array$field_nested = message.field_nested;
   if (array$field_nested !== undefined) {
     for (var i = 0; i < array$field_nested.length; i++) {
-      var $field_nested = array$field_nested[i];
-      var nested = exports.encodeNested($field_nested);
+      var value = array$field_nested[i];
+      var nested = exports.encodeNested(value);
       writeVarint32(bb, 130);
       writeVarint32(bb, nested.length), writeBytes(bb, nested);
     }
@@ -1167,8 +1167,8 @@ exports.encodeEnumTest = function (message) {
   if (array$c !== undefined) {
     var packed = newByteBuffer();
     for (var i = 0; i < array$c.length; i++) {
-      var $c = array$c[i];
-      writeVarint32(packed, exports.encodeEnum[$c]);
+      var value = array$c[i];
+      writeVarint32(packed, exports.encodeEnum[value]);
     }
     writeVarint32(bb, 26);
     writeVarint32(bb, packed.offset);
@@ -1227,6 +1227,585 @@ exports.decodeEnumTest = function (binary) {
   return message;
 };
 
+exports.encodeMapTestIntAndString = function (message) {
+  var bb = newByteBuffer();
+
+  // optional map<int32, bool> field_int32 = 1;
+  var map$field_int32 = message.field_int32;
+  if (map$field_int32 !== undefined) {
+    for (var key in map$field_int32) {
+      var nested = newByteBuffer();
+      var value = map$field_int32[key];
+      writeVarint32(nested, 8);
+      writeVarint64(nested, intToLong(+key));
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 10);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<uint32, bool> field_uint32 = 2;
+  var map$field_uint32 = message.field_uint32;
+  if (map$field_uint32 !== undefined) {
+    for (var key in map$field_uint32) {
+      var nested = newByteBuffer();
+      var value = map$field_uint32[key];
+      writeVarint32(nested, 8);
+      writeVarint32(nested, +key);
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 18);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<sint32, bool> field_sint32 = 3;
+  var map$field_sint32 = message.field_sint32;
+  if (map$field_sint32 !== undefined) {
+    for (var key in map$field_sint32) {
+      var nested = newByteBuffer();
+      var value = map$field_sint32[key];
+      writeVarint32(nested, 8);
+      writeVarint32ZigZag(nested, +key);
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 26);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<string, bool> field_string = 5;
+  var map$field_string = message.field_string;
+  if (map$field_string !== undefined) {
+    for (var key in map$field_string) {
+      var nested = newByteBuffer();
+      var value = map$field_string[key];
+      var nestedKey = utf8Encoder.encode(key);
+      writeVarint32(nested, 10);
+      writeVarint32(nested, nestedKey.length), writeBytes(nested, nestedKey);
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 42);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<fixed32, bool> field_fixed32 = 6;
+  var map$field_fixed32 = message.field_fixed32;
+  if (map$field_fixed32 !== undefined) {
+    for (var key in map$field_fixed32) {
+      var nested = newByteBuffer();
+      var value = map$field_fixed32[key];
+      writeVarint32(nested, 13);
+      writeInt32(nested, +key);
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 50);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<sfixed32, bool> field_sfixed32 = 7;
+  var map$field_sfixed32 = message.field_sfixed32;
+  if (map$field_sfixed32 !== undefined) {
+    for (var key in map$field_sfixed32) {
+      var nested = newByteBuffer();
+      var value = map$field_sfixed32[key];
+      writeVarint32(nested, 13);
+      writeInt32(nested, +key);
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 58);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  return toUint8Array(bb);
+};
+
+exports.decodeMapTestIntAndString = function (binary) {
+  var message = {};
+  var bb = binary instanceof Uint8Array ? newByteBuffer(binary) : binary;
+
+  end_of_message: while (!isAtEnd(bb)) {
+    var tag = readVarint32(bb);
+
+    switch (tag >>> 3) {
+      case 0:
+        break end_of_message;
+
+      // optional map<int32, bool> field_int32 = 1;
+      case 1: {
+        var values = message.field_int32 || (message.field_int32 = {});
+        var outerLimit = pushTemporaryLength(bb);
+        var key;
+        var value;
+        end_of_entry: while (!isAtEnd(bb)) {
+          var tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readVarint32(bb);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_int32");
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<uint32, bool> field_uint32 = 2;
+      case 2: {
+        var values = message.field_uint32 || (message.field_uint32 = {});
+        var outerLimit = pushTemporaryLength(bb);
+        var key;
+        var value;
+        end_of_entry: while (!isAtEnd(bb)) {
+          var tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readVarint32(bb) >>> 0;
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_uint32");
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<sint32, bool> field_sint32 = 3;
+      case 3: {
+        var values = message.field_sint32 || (message.field_sint32 = {});
+        var outerLimit = pushTemporaryLength(bb);
+        var key;
+        var value;
+        end_of_entry: while (!isAtEnd(bb)) {
+          var tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readVarint32ZigZag(bb);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_sint32");
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<string, bool> field_string = 5;
+      case 5: {
+        var values = message.field_string || (message.field_string = {});
+        var outerLimit = pushTemporaryLength(bb);
+        var key;
+        var value;
+        end_of_entry: while (!isAtEnd(bb)) {
+          var tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = utf8Decoder.decode(readBytes(bb, readVarint32(bb)));
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_string");
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<fixed32, bool> field_fixed32 = 6;
+      case 6: {
+        var values = message.field_fixed32 || (message.field_fixed32 = {});
+        var outerLimit = pushTemporaryLength(bb);
+        var key;
+        var value;
+        end_of_entry: while (!isAtEnd(bb)) {
+          var tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readInt32(bb) >>> 0;
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_fixed32");
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<sfixed32, bool> field_sfixed32 = 7;
+      case 7: {
+        var values = message.field_sfixed32 || (message.field_sfixed32 = {});
+        var outerLimit = pushTemporaryLength(bb);
+        var key;
+        var value;
+        end_of_entry: while (!isAtEnd(bb)) {
+          var tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readInt32(bb);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_sfixed32");
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      default:
+        skipUnknownField(bb, tag & 7);
+    }
+  }
+
+  return message;
+};
+
+exports.encodeMapTestLongAndBool = function (message) {
+  var bb = newByteBuffer();
+
+  // optional map<int64, bool> field_int64 = 1;
+  var map$field_int64 = message.field_int64;
+  if (map$field_int64 !== undefined) {
+    for (var key in map$field_int64) {
+      var nested = newByteBuffer();
+      var value = map$field_int64[key];
+      writeVarint32(nested, 8);
+      writeVarint64(nested, stringToLong(key));
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 10);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<uint64, bool> field_uint64 = 2;
+  var map$field_uint64 = message.field_uint64;
+  if (map$field_uint64 !== undefined) {
+    for (var key in map$field_uint64) {
+      var nested = newByteBuffer();
+      var value = map$field_uint64[key];
+      writeVarint32(nested, 8);
+      writeVarint64(nested, stringToLong(key));
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 18);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<sint64, bool> field_sint64 = 3;
+  var map$field_sint64 = message.field_sint64;
+  if (map$field_sint64 !== undefined) {
+    for (var key in map$field_sint64) {
+      var nested = newByteBuffer();
+      var value = map$field_sint64[key];
+      writeVarint32(nested, 8);
+      writeVarint64ZigZag(nested, stringToLong(key));
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 26);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<fixed64, bool> field_fixed64 = 4;
+  var map$field_fixed64 = message.field_fixed64;
+  if (map$field_fixed64 !== undefined) {
+    for (var key in map$field_fixed64) {
+      var nested = newByteBuffer();
+      var value = map$field_fixed64[key];
+      writeVarint32(nested, 9);
+      writeInt64(nested, stringToLong(key));
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 34);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<sfixed64, bool> field_sfixed64 = 5;
+  var map$field_sfixed64 = message.field_sfixed64;
+  if (map$field_sfixed64 !== undefined) {
+    for (var key in map$field_sfixed64) {
+      var nested = newByteBuffer();
+      var value = map$field_sfixed64[key];
+      writeVarint32(nested, 9);
+      writeInt64(nested, stringToLong(key));
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 42);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  // optional map<bool, bool> field_bool = 6;
+  var map$field_bool = message.field_bool;
+  if (map$field_bool !== undefined) {
+    for (var key in map$field_bool) {
+      var nested = newByteBuffer();
+      var value = map$field_bool[key];
+      writeVarint32(nested, 8);
+      writeByte(nested, key === "true" ? 1 : 0);
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 50);
+      writeVarint32(bb, nested.offset);
+      writeBytes(bb, toUint8Array(nested));
+    }
+  }
+
+  return toUint8Array(bb);
+};
+
+exports.decodeMapTestLongAndBool = function (binary) {
+  var message = {};
+  var bb = binary instanceof Uint8Array ? newByteBuffer(binary) : binary;
+
+  end_of_message: while (!isAtEnd(bb)) {
+    var tag = readVarint32(bb);
+
+    switch (tag >>> 3) {
+      case 0:
+        break end_of_message;
+
+      // optional map<int64, bool> field_int64 = 1;
+      case 1: {
+        var values = message.field_int64 || (message.field_int64 = {});
+        var outerLimit = pushTemporaryLength(bb);
+        var key;
+        var value;
+        end_of_entry: while (!isAtEnd(bb)) {
+          var tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readVarint64(bb, /* unsigned */ false);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_int64");
+        values[longToString(key)] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<uint64, bool> field_uint64 = 2;
+      case 2: {
+        var values = message.field_uint64 || (message.field_uint64 = {});
+        var outerLimit = pushTemporaryLength(bb);
+        var key;
+        var value;
+        end_of_entry: while (!isAtEnd(bb)) {
+          var tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readVarint64(bb, /* unsigned */ true);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_uint64");
+        values[longToString(key)] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<sint64, bool> field_sint64 = 3;
+      case 3: {
+        var values = message.field_sint64 || (message.field_sint64 = {});
+        var outerLimit = pushTemporaryLength(bb);
+        var key;
+        var value;
+        end_of_entry: while (!isAtEnd(bb)) {
+          var tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readVarint64ZigZag(bb);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_sint64");
+        values[longToString(key)] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<fixed64, bool> field_fixed64 = 4;
+      case 4: {
+        var values = message.field_fixed64 || (message.field_fixed64 = {});
+        var outerLimit = pushTemporaryLength(bb);
+        var key;
+        var value;
+        end_of_entry: while (!isAtEnd(bb)) {
+          var tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readInt64(bb, /* unsigned */ true);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_fixed64");
+        values[longToString(key)] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<sfixed64, bool> field_sfixed64 = 5;
+      case 5: {
+        var values = message.field_sfixed64 || (message.field_sfixed64 = {});
+        var outerLimit = pushTemporaryLength(bb);
+        var key;
+        var value;
+        end_of_entry: while (!isAtEnd(bb)) {
+          var tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = readInt64(bb, /* unsigned */ false);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_sfixed64");
+        values[longToString(key)] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<bool, bool> field_bool = 6;
+      case 6: {
+        var values = message.field_bool || (message.field_bool = {});
+        var outerLimit = pushTemporaryLength(bb);
+        var key;
+        var value;
+        end_of_entry: while (!isAtEnd(bb)) {
+          var tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1:
+              key = !!readByte(bb);
+              break;
+            case 2:
+              value = !!readByte(bb);
+              break;
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: field_bool");
+        values[key + ''] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      default:
+        skipUnknownField(bb, tag & 7);
+    }
+  }
+
+  return message;
+};
+
 function pushTemporaryLength(bb) {
   var length = readVarint32(bb);
   var limit = bb.limit;
@@ -1242,6 +1821,24 @@ function skipUnknownField(bb, type) {
     case 1: skip(bb, 8); break;
     default: throw new Error("Unimplemented type: " + type);
   }
+}
+
+function stringToLong(value) {
+  return {
+    low: value.charCodeAt(0) | (value.charCodeAt(1) << 16),
+    high: value.charCodeAt(2) | (value.charCodeAt(3) << 16),
+    unsigned: false,
+  };
+}
+
+function longToString(value) {
+  var low = value.low;
+  var high = value.high;
+  return String.fromCharCode(
+    low & 0xFFFF,
+    low >>> 16,
+    high & 0xFFFF,
+    high >>> 16);
 }
 
 // The code below was modified from https://github.com/protobufjs/bytebuffer.js

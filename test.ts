@@ -4,7 +4,15 @@ import * as assert from 'assert';
 import * as Long from 'long';
 import * as fs from 'fs';
 import { parseSchema } from './index';
-import { Optional, RepeatedUnpacked, RepeatedPacked, EnumTest, Enum } from './test.proto';
+import {
+  Enum,
+  EnumTest,
+  MapTestLongAndBool,
+  MapTestIntAndString,
+  Optional,
+  RepeatedPacked,
+  RepeatedUnpacked,
+} from './test.proto';
 
 function parseTestProto(): typeof import('./test.proto') {
   return parseSchema(fs.readFileSync('./test.proto', 'utf8')).compile();
@@ -172,6 +180,72 @@ it('enum test', async () => {
   const buffer = schema.encodeEnumTest(message);
   const message2 = schema.decodeEnumTest(buffer);
   assert.deepEqual(message2, message);
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+it('map test (int and string keys)', async () => {
+  const schema = parseTestProto();
+
+  const message: MapTestIntAndString = {
+    field_int32: { [-1]: false, [1]: true },
+    field_uint32: { [-1 >>> 0]: false, [1]: true },
+    field_sint32: { [-1]: false, [1]: true },
+    field_string: { 'testing': false, '🙉🙈🙊': true },
+    field_fixed32: { [-1 >>> 0]: false, [1]: true },
+    field_sfixed32: { [-1]: false, [1]: true },
+  };
+
+  const buffer = schema.encodeMapTestIntAndString(message);
+  const message2 = schema.decodeMapTestIntAndString(buffer);
+  assert.deepEqual(message2, message);
+
+  const root = new protobufjs.Root();
+  await root.load('./test.proto', { keepCase: true });
+
+  const MapTestIntAndString = root.lookupType('test.MapTestIntAndString');
+  const message3 = MapTestIntAndString.decode(buffer);
+  assert.deepEqual(message3, message);
+
+  const buffer2 = MapTestIntAndString.encode(message).finish();
+  assert.deepEqual(buffer2, buffer);
+});
+
+////////////////////////////////////////////////////////////////////////////////
+
+it('map test (long and bool keys)', async () => {
+  const schema = parseTestProto();
+
+  const message: MapTestLongAndBool = {
+    field_int64: { '\uFEDC\uBA98\u7654\u3210': false },
+    field_uint64: { '\uBA98\u7654\u3210\uFEDC': false },
+    field_sint64: { '\u7654\u3210\uFEDC\uBA98': false },
+    field_fixed64: { '\u3210\uFEDC\uBA98\u7654': false },
+    field_sfixed64: { '\uFEDC\uBA98\u7654\u3210': false },
+    field_bool: { false: true, true: false },
+  };
+
+  // Note: The output can't be compared against protobuf.js because it has a
+  // bug that prevents it from round-tripping 64-bit keys correctly. The keys
+  // are encoded in decimal but decoded in binary. Whoops! See this for more
+  // information: https://github.com/protobufjs/protobuf.js/issues/1203.
+  // Because 64-bit keys are broken in protobuf.js, this library uses a more
+  // efficient 16-bit encoding of 64-bit keys instead of an 8-bit encoding.
+  //
+  // It also seems to have a bug that breaks round-tripping boolean keys. I
+  // couldn't find an associated bug but I also couldn't get it to work.
+
+  const buffer = schema.encodeMapTestLongAndBool(message);
+  const message2 = schema.decodeMapTestLongAndBool(buffer);
+  assert.deepEqual(message2, message);
+
+  const root = new protobufjs.Root();
+  await root.load('./test.proto', { keepCase: true });
+
+  // Even though we can't compare against the contents, still test that the
+  // buffer is valid and can be decoded without throwing an error.
+  const MapTestLongAndBool = root.lookupType('test.MapTestLongAndBool');
+  MapTestLongAndBool.decode(buffer);
 });
 
 ////////////////////////////////////////////////////////////////////////////////
