@@ -1,6 +1,6 @@
 {
   "name": "pbjs",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "A minimal implementation of Google Protocol Buffers for JavaScript",
   "main": "./index.js",
   "types": "./index.d.ts",
