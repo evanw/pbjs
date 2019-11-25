@@ -1279,7 +1279,7 @@ exports.encodeMapTestIntAndString = function (message) {
 }
 
 function _encodeMapTestIntAndString(message, bb) {
-  // optional map<int32, bool> field_int32 = 1;
+  // optional map<int32, string> field_int32 = 1;
   var map$field_int32 = message.field_int32;
   if (map$field_int32 !== undefined) {
     for (var key in map$field_int32) {
@@ -1287,8 +1287,8 @@ function _encodeMapTestIntAndString(message, bb) {
       var value = map$field_int32[key];
       writeVarint32(nested, 8);
       writeVarint64(nested, intToLong(+key));
-      writeVarint32(nested, 16);
-      writeByte(nested, value ? 1 : 0);
+      writeVarint32(nested, 18);
+      writeString(nested, value);
       writeVarint32(bb, 10);
       writeVarint32(bb, nested.offset);
       writeByteBuffer(bb, nested);
@@ -1296,7 +1296,7 @@ function _encodeMapTestIntAndString(message, bb) {
     }
   }
 
-  // optional map<uint32, bool> field_uint32 = 2;
+  // optional map<uint32, bytes> field_uint32 = 2;
   var map$field_uint32 = message.field_uint32;
   if (map$field_uint32 !== undefined) {
     for (var key in map$field_uint32) {
@@ -1304,8 +1304,8 @@ function _encodeMapTestIntAndString(message, bb) {
       var value = map$field_uint32[key];
       writeVarint32(nested, 8);
       writeVarint32(nested, +key);
-      writeVarint32(nested, 16);
-      writeByte(nested, value ? 1 : 0);
+      writeVarint32(nested, 18);
+      writeVarint32(nested, value.length), writeBytes(nested, value);
       writeVarint32(bb, 18);
       writeVarint32(bb, nested.offset);
       writeByteBuffer(bb, nested);
@@ -1313,7 +1313,7 @@ function _encodeMapTestIntAndString(message, bb) {
     }
   }
 
-  // optional map<sint32, bool> field_sint32 = 3;
+  // optional map<sint32, int64> field_sint32 = 3;
   var map$field_sint32 = message.field_sint32;
   if (map$field_sint32 !== undefined) {
     for (var key in map$field_sint32) {
@@ -1322,7 +1322,7 @@ function _encodeMapTestIntAndString(message, bb) {
       writeVarint32(nested, 8);
       writeVarint32ZigZag(nested, +key);
       writeVarint32(nested, 16);
-      writeByte(nested, value ? 1 : 0);
+      writeVarint64(nested, value);
       writeVarint32(bb, 26);
       writeVarint32(bb, nested.offset);
       writeByteBuffer(bb, nested);
@@ -1330,7 +1330,7 @@ function _encodeMapTestIntAndString(message, bb) {
     }
   }
 
-  // optional map<string, bool> field_string = 5;
+  // optional map<string, double> field_string = 5;
   var map$field_string = message.field_string;
   if (map$field_string !== undefined) {
     for (var key in map$field_string) {
@@ -1338,8 +1338,8 @@ function _encodeMapTestIntAndString(message, bb) {
       var value = map$field_string[key];
       writeVarint32(nested, 10);
       writeString(nested, key);
-      writeVarint32(nested, 16);
-      writeByte(nested, value ? 1 : 0);
+      writeVarint32(nested, 17);
+      writeDouble(nested, value);
       writeVarint32(bb, 42);
       writeVarint32(bb, nested.offset);
       writeByteBuffer(bb, nested);
@@ -1364,7 +1364,7 @@ function _encodeMapTestIntAndString(message, bb) {
     }
   }
 
-  // optional map<sfixed32, bool> field_sfixed32 = 7;
+  // optional map<sfixed32, Nested> field_sfixed32 = 7;
   var map$field_sfixed32 = message.field_sfixed32;
   if (map$field_sfixed32 !== undefined) {
     for (var key in map$field_sfixed32) {
@@ -1372,8 +1372,12 @@ function _encodeMapTestIntAndString(message, bb) {
       var value = map$field_sfixed32[key];
       writeVarint32(nested, 13);
       writeInt32(nested, +key);
-      writeVarint32(nested, 16);
-      writeByte(nested, value ? 1 : 0);
+      writeVarint32(nested, 18);
+      var nestedValue = popByteBuffer();
+      _encodeNested(value, nestedValue);
+      writeVarint32(nested, nestedValue.limit);
+      writeByteBuffer(nested, nestedValue);
+      pushByteBuffer(nestedValue);
       writeVarint32(bb, 58);
       writeVarint32(bb, nested.offset);
       writeByteBuffer(bb, nested);
@@ -1396,7 +1400,7 @@ function _decodeMapTestIntAndString(bb) {
       case 0:
         break end_of_message;
 
-      // optional map<int32, bool> field_int32 = 1;
+      // optional map<int32, string> field_int32 = 1;
       case 1: {
         var values = message.field_int32 || (message.field_int32 = {});
         var outerLimit = pushTemporaryLength(bb);
@@ -1407,12 +1411,14 @@ function _decodeMapTestIntAndString(bb) {
           switch (tag >>> 3) {
             case 0:
               break end_of_entry;
-            case 1:
+            case 1: {
               key = readVarint32(bb);
               break;
-            case 2:
-              value = !!readByte(bb);
+            }
+            case 2: {
+              value = readString(bb, readVarint32(bb));
               break;
+            }
             default:
               skipUnknownField(bb, tag & 7);
           }
@@ -1424,7 +1430,7 @@ function _decodeMapTestIntAndString(bb) {
         break;
       }
 
-      // optional map<uint32, bool> field_uint32 = 2;
+      // optional map<uint32, bytes> field_uint32 = 2;
       case 2: {
         var values = message.field_uint32 || (message.field_uint32 = {});
         var outerLimit = pushTemporaryLength(bb);
@@ -1435,12 +1441,14 @@ function _decodeMapTestIntAndString(bb) {
           switch (tag >>> 3) {
             case 0:
               break end_of_entry;
-            case 1:
+            case 1: {
               key = readVarint32(bb) >>> 0;
               break;
-            case 2:
-              value = !!readByte(bb);
+            }
+            case 2: {
+              value = readBytes(bb, readVarint32(bb));
               break;
+            }
             default:
               skipUnknownField(bb, tag & 7);
           }
@@ -1452,7 +1460,7 @@ function _decodeMapTestIntAndString(bb) {
         break;
       }
 
-      // optional map<sint32, bool> field_sint32 = 3;
+      // optional map<sint32, int64> field_sint32 = 3;
       case 3: {
         var values = message.field_sint32 || (message.field_sint32 = {});
         var outerLimit = pushTemporaryLength(bb);
@@ -1463,12 +1471,14 @@ function _decodeMapTestIntAndString(bb) {
           switch (tag >>> 3) {
             case 0:
               break end_of_entry;
-            case 1:
+            case 1: {
               key = readVarint32ZigZag(bb);
               break;
-            case 2:
-              value = !!readByte(bb);
+            }
+            case 2: {
+              value = readVarint64(bb, /* unsigned */ false);
               break;
+            }
             default:
               skipUnknownField(bb, tag & 7);
           }
@@ -1480,7 +1490,7 @@ function _decodeMapTestIntAndString(bb) {
         break;
       }
 
-      // optional map<string, bool> field_string = 5;
+      // optional map<string, double> field_string = 5;
       case 5: {
         var values = message.field_string || (message.field_string = {});
         var outerLimit = pushTemporaryLength(bb);
@@ -1491,12 +1501,14 @@ function _decodeMapTestIntAndString(bb) {
           switch (tag >>> 3) {
             case 0:
               break end_of_entry;
-            case 1:
+            case 1: {
               key = readString(bb, readVarint32(bb));
               break;
-            case 2:
-              value = !!readByte(bb);
+            }
+            case 2: {
+              value = readDouble(bb);
               break;
+            }
             default:
               skipUnknownField(bb, tag & 7);
           }
@@ -1519,12 +1531,14 @@ function _decodeMapTestIntAndString(bb) {
           switch (tag >>> 3) {
             case 0:
               break end_of_entry;
-            case 1:
+            case 1: {
               key = readInt32(bb) >>> 0;
               break;
-            case 2:
+            }
+            case 2: {
               value = !!readByte(bb);
               break;
+            }
             default:
               skipUnknownField(bb, tag & 7);
           }
@@ -1536,7 +1550,7 @@ function _decodeMapTestIntAndString(bb) {
         break;
       }
 
-      // optional map<sfixed32, bool> field_sfixed32 = 7;
+      // optional map<sfixed32, Nested> field_sfixed32 = 7;
       case 7: {
         var values = message.field_sfixed32 || (message.field_sfixed32 = {});
         var outerLimit = pushTemporaryLength(bb);
@@ -1547,12 +1561,16 @@ function _decodeMapTestIntAndString(bb) {
           switch (tag >>> 3) {
             case 0:
               break end_of_entry;
-            case 1:
+            case 1: {
               key = readInt32(bb);
               break;
-            case 2:
-              value = !!readByte(bb);
+            }
+            case 2: {
+              var valueLimit = pushTemporaryLength(bb);
+              value = _decodeNested(bb);
+              bb.limit = valueLimit;
               break;
+            }
             default:
               skipUnknownField(bb, tag & 7);
           }
@@ -1579,7 +1597,7 @@ exports.encodeMapTestLongAndBool = function (message) {
 }
 
 function _encodeMapTestLongAndBool(message, bb) {
-  // optional map<int64, bool> field_int64 = 1;
+  // optional map<int64, string> field_int64 = 1;
   var map$field_int64 = message.field_int64;
   if (map$field_int64 !== undefined) {
     for (var key in map$field_int64) {
@@ -1587,8 +1605,8 @@ function _encodeMapTestLongAndBool(message, bb) {
       var value = map$field_int64[key];
       writeVarint32(nested, 8);
       writeVarint64(nested, stringToLong(key));
-      writeVarint32(nested, 16);
-      writeByte(nested, value ? 1 : 0);
+      writeVarint32(nested, 18);
+      writeString(nested, value);
       writeVarint32(bb, 10);
       writeVarint32(bb, nested.offset);
       writeByteBuffer(bb, nested);
@@ -1596,7 +1614,7 @@ function _encodeMapTestLongAndBool(message, bb) {
     }
   }
 
-  // optional map<uint64, bool> field_uint64 = 2;
+  // optional map<uint64, bytes> field_uint64 = 2;
   var map$field_uint64 = message.field_uint64;
   if (map$field_uint64 !== undefined) {
     for (var key in map$field_uint64) {
@@ -1604,8 +1622,8 @@ function _encodeMapTestLongAndBool(message, bb) {
       var value = map$field_uint64[key];
       writeVarint32(nested, 8);
       writeVarint64(nested, stringToLong(key));
-      writeVarint32(nested, 16);
-      writeByte(nested, value ? 1 : 0);
+      writeVarint32(nested, 18);
+      writeVarint32(nested, value.length), writeBytes(nested, value);
       writeVarint32(bb, 18);
       writeVarint32(bb, nested.offset);
       writeByteBuffer(bb, nested);
@@ -1613,7 +1631,7 @@ function _encodeMapTestLongAndBool(message, bb) {
     }
   }
 
-  // optional map<sint64, bool> field_sint64 = 3;
+  // optional map<sint64, int64> field_sint64 = 3;
   var map$field_sint64 = message.field_sint64;
   if (map$field_sint64 !== undefined) {
     for (var key in map$field_sint64) {
@@ -1622,7 +1640,7 @@ function _encodeMapTestLongAndBool(message, bb) {
       writeVarint32(nested, 8);
       writeVarint64ZigZag(nested, stringToLong(key));
       writeVarint32(nested, 16);
-      writeByte(nested, value ? 1 : 0);
+      writeVarint64(nested, value);
       writeVarint32(bb, 26);
       writeVarint32(bb, nested.offset);
       writeByteBuffer(bb, nested);
@@ -1630,7 +1648,7 @@ function _encodeMapTestLongAndBool(message, bb) {
     }
   }
 
-  // optional map<fixed64, bool> field_fixed64 = 4;
+  // optional map<fixed64, double> field_fixed64 = 4;
   var map$field_fixed64 = message.field_fixed64;
   if (map$field_fixed64 !== undefined) {
     for (var key in map$field_fixed64) {
@@ -1638,8 +1656,8 @@ function _encodeMapTestLongAndBool(message, bb) {
       var value = map$field_fixed64[key];
       writeVarint32(nested, 9);
       writeInt64(nested, stringToLong(key));
-      writeVarint32(nested, 16);
-      writeByte(nested, value ? 1 : 0);
+      writeVarint32(nested, 17);
+      writeDouble(nested, value);
       writeVarint32(bb, 34);
       writeVarint32(bb, nested.offset);
       writeByteBuffer(bb, nested);
@@ -1664,7 +1682,7 @@ function _encodeMapTestLongAndBool(message, bb) {
     }
   }
 
-  // optional map<bool, bool> field_bool = 6;
+  // optional map<bool, Nested> field_bool = 6;
   var map$field_bool = message.field_bool;
   if (map$field_bool !== undefined) {
     for (var key in map$field_bool) {
@@ -1672,8 +1690,12 @@ function _encodeMapTestLongAndBool(message, bb) {
       var value = map$field_bool[key];
       writeVarint32(nested, 8);
       writeByte(nested, key === "true" ? 1 : 0);
-      writeVarint32(nested, 16);
-      writeByte(nested, value ? 1 : 0);
+      writeVarint32(nested, 18);
+      var nestedValue = popByteBuffer();
+      _encodeNested(value, nestedValue);
+      writeVarint32(nested, nestedValue.limit);
+      writeByteBuffer(nested, nestedValue);
+      pushByteBuffer(nestedValue);
       writeVarint32(bb, 50);
       writeVarint32(bb, nested.offset);
       writeByteBuffer(bb, nested);
@@ -1696,7 +1718,7 @@ function _decodeMapTestLongAndBool(bb) {
       case 0:
         break end_of_message;
 
-      // optional map<int64, bool> field_int64 = 1;
+      // optional map<int64, string> field_int64 = 1;
       case 1: {
         var values = message.field_int64 || (message.field_int64 = {});
         var outerLimit = pushTemporaryLength(bb);
@@ -1707,12 +1729,14 @@ function _decodeMapTestLongAndBool(bb) {
           switch (tag >>> 3) {
             case 0:
               break end_of_entry;
-            case 1:
+            case 1: {
               key = readVarint64(bb, /* unsigned */ false);
               break;
-            case 2:
-              value = !!readByte(bb);
+            }
+            case 2: {
+              value = readString(bb, readVarint32(bb));
               break;
+            }
             default:
               skipUnknownField(bb, tag & 7);
           }
@@ -1724,7 +1748,7 @@ function _decodeMapTestLongAndBool(bb) {
         break;
       }
 
-      // optional map<uint64, bool> field_uint64 = 2;
+      // optional map<uint64, bytes> field_uint64 = 2;
       case 2: {
         var values = message.field_uint64 || (message.field_uint64 = {});
         var outerLimit = pushTemporaryLength(bb);
@@ -1735,12 +1759,14 @@ function _decodeMapTestLongAndBool(bb) {
           switch (tag >>> 3) {
             case 0:
               break end_of_entry;
-            case 1:
+            case 1: {
               key = readVarint64(bb, /* unsigned */ true);
               break;
-            case 2:
-              value = !!readByte(bb);
+            }
+            case 2: {
+              value = readBytes(bb, readVarint32(bb));
               break;
+            }
             default:
               skipUnknownField(bb, tag & 7);
           }
@@ -1752,7 +1778,7 @@ function _decodeMapTestLongAndBool(bb) {
         break;
       }
 
-      // optional map<sint64, bool> field_sint64 = 3;
+      // optional map<sint64, int64> field_sint64 = 3;
       case 3: {
         var values = message.field_sint64 || (message.field_sint64 = {});
         var outerLimit = pushTemporaryLength(bb);
@@ -1763,12 +1789,14 @@ function _decodeMapTestLongAndBool(bb) {
           switch (tag >>> 3) {
             case 0:
               break end_of_entry;
-            case 1:
+            case 1: {
               key = readVarint64ZigZag(bb);
               break;
-            case 2:
-              value = !!readByte(bb);
+            }
+            case 2: {
+              value = readVarint64(bb, /* unsigned */ false);
               break;
+            }
             default:
               skipUnknownField(bb, tag & 7);
           }
@@ -1780,7 +1808,7 @@ function _decodeMapTestLongAndBool(bb) {
         break;
       }
 
-      // optional map<fixed64, bool> field_fixed64 = 4;
+      // optional map<fixed64, double> field_fixed64 = 4;
       case 4: {
         var values = message.field_fixed64 || (message.field_fixed64 = {});
         var outerLimit = pushTemporaryLength(bb);
@@ -1791,12 +1819,14 @@ function _decodeMapTestLongAndBool(bb) {
           switch (tag >>> 3) {
             case 0:
               break end_of_entry;
-            case 1:
+            case 1: {
               key = readInt64(bb, /* unsigned */ true);
               break;
-            case 2:
-              value = !!readByte(bb);
+            }
+            case 2: {
+              value = readDouble(bb);
               break;
+            }
             default:
               skipUnknownField(bb, tag & 7);
           }
@@ -1819,12 +1849,14 @@ function _decodeMapTestLongAndBool(bb) {
           switch (tag >>> 3) {
             case 0:
               break end_of_entry;
-            case 1:
+            case 1: {
               key = readInt64(bb, /* unsigned */ false);
               break;
-            case 2:
+            }
+            case 2: {
               value = !!readByte(bb);
               break;
+            }
             default:
               skipUnknownField(bb, tag & 7);
           }
@@ -1836,7 +1868,7 @@ function _decodeMapTestLongAndBool(bb) {
         break;
       }
 
-      // optional map<bool, bool> field_bool = 6;
+      // optional map<bool, Nested> field_bool = 6;
       case 6: {
         var values = message.field_bool || (message.field_bool = {});
         var outerLimit = pushTemporaryLength(bb);
@@ -1847,12 +1879,16 @@ function _decodeMapTestLongAndBool(bb) {
           switch (tag >>> 3) {
             case 0:
               break end_of_entry;
-            case 1:
+            case 1: {
               key = !!readByte(bb);
               break;
-            case 2:
-              value = !!readByte(bb);
+            }
+            case 2: {
+              var valueLimit = pushTemporaryLength(bb);
+              value = _decodeNested(bb);
+              bb.limit = valueLimit;
               break;
+            }
             default:
               skipUnknownField(bb, tag & 7);
           }

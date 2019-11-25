@@ -306,6 +306,7 @@ export function generate(schema: Schema, options?: Options): string {
 
     function decodeValue(name: string, limit = 'limit') {
       let read: string;
+      let before: string | null = null;
       let after: string | null = null;
 
       switch (name) {
@@ -329,7 +330,7 @@ export function generate(schema: Schema, options?: Options): string {
           if (name in enums) {
             read = `${prefix}decode${name}[readVarint32(bb)]`;
           } else {
-            lines.push(`        ${varOrLet} ${limit} = pushTemporaryLength(bb);`);
+            before = `${varOrLet} ${limit} = pushTemporaryLength(bb)`;
             read = `_decode${name}(bb)`;
             after = `bb.limit = ${limit}`;
           }
@@ -337,7 +338,7 @@ export function generate(schema: Schema, options?: Options): string {
         }
       }
 
-      return { read, after };
+      return { read, before, after };
     }
 
     for (const field of def.fields) {
@@ -361,14 +362,18 @@ export function generate(schema: Schema, options?: Options): string {
         lines.push(`          switch (tag >>> 3) {`);
         lines.push(`            case 0:`);
         lines.push(`              break end_of_entry;`);
-        lines.push(`            case 1:`);
+        lines.push(`            case 1: {`);
+        if (key.before) lines.push(`              ${key.before};`);
         lines.push(`              key = ${key.read};`);
         if (key.after) lines.push(`              ${key.after};`);
         lines.push(`              break;`);
-        lines.push(`            case 2:`);
+        lines.push(`            }`);
+        lines.push(`            case 2: {`);
+        if (value.before) lines.push(`              ${value.before};`);
         lines.push(`              value = ${value.read};`);
         if (value.after) lines.push(`              ${value.after};`);
         lines.push(`              break;`);
+        lines.push(`            }`);
         lines.push(`            default:`);
         lines.push(`              skipUnknownField(bb, tag & 7);`);
         lines.push(`          }`);
@@ -382,7 +387,8 @@ export function generate(schema: Schema, options?: Options): string {
       }
 
       else if (field.repeated) {
-        const { read, after } = decodeValue(field.type);
+        const { read, before, after } = decodeValue(field.type);
+        if (before) lines.push(`        ${before};`);
         lines.push(`        ${varOrLet} values = message.${field.name} || (message.${field.name} = []);`);
 
         // Support both packed and unpacked encodings for primitive types
@@ -407,7 +413,8 @@ export function generate(schema: Schema, options?: Options): string {
       }
 
       else {
-        const { read, after } = decodeValue(field.type);
+        const { read, before, after } = decodeValue(field.type);
+        if (before) lines.push(`        ${before};`);
         lines.push(`        message.${field.name} = ${read};`);
         if (after) lines.push(`        ${after};`);
       }

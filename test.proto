@@ -76,19 +76,19 @@ message EnumTest {
 }
 
 message MapTestIntAndString {
-  map<int32, bool> field_int32 = 1;
-  map<uint32, bool> field_uint32 = 2;
-  map<sint32, bool> field_sint32 = 3;
-  map<string, bool> field_string = 5;
+  map<int32, string> field_int32 = 1;
+  map<uint32, bytes> field_uint32 = 2;
+  map<sint32, int64> field_sint32 = 3;
+  map<string, double> field_string = 5;
   map<fixed32, bool> field_fixed32 = 6;
-  map<sfixed32, bool> field_sfixed32 = 7;
+  map<sfixed32, Nested> field_sfixed32 = 7;
 }
 
 message MapTestLongAndBool {
-  map<int64, bool> field_int64 = 1;
-  map<uint64, bool> field_uint64 = 2;
-  map<sint64, bool> field_sint64 = 3;
-  map<fixed64, bool> field_fixed64 = 4;
+  map<int64, string> field_int64 = 1;
+  map<uint64, bytes> field_uint64 = 2;
+  map<sint64, int64> field_sint64 = 3;
+  map<fixed64, double> field_fixed64 = 4;
   map<sfixed64, bool> field_sfixed64 = 5;
-  map<bool, bool> field_bool = 6;
+  map<bool, Nested> field_bool = 6;
 }
